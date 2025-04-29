@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9728d702e76a66b4b936d38ed65582de, type: 3}
+  m_Name: PickaxeSO
+  m_EditorClassIdentifier: 
+  Name: Pickaxe
+  description: To mine Gold
+  icon: {fileID: 21300000, guid: 45cfe68fb47a8514f96477d0fb432286, type: 3}
+  sellingPrice: 15
+  costPrice: 20
+  itemRarity: 0
+  itemType: 1
+  itemInventoryType: 1
+  quantity: 23
+  weight: 10
