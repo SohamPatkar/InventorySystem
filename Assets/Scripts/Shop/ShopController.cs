@@ -21,4 +21,9 @@ public class ShopController
     {
         shopModel.items.Add(item);
     }
+
+    public void RemoveItem(ItemController item)
+    {
+        shopModel.items.Remove(item);
+    }
 }

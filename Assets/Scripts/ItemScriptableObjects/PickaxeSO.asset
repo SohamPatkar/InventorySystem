@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: PickaxeSO
   m_EditorClassIdentifier: 
   Name: Pickaxe
+  id: '#1'
   description: To mine Gold
   icon: {fileID: 21300000, guid: 45cfe68fb47a8514f96477d0fb432286, type: 3}
   sellingPrice: 15
@@ -20,5 +21,5 @@ MonoBehaviour:
   itemRarity: 0
   itemType: 1
   itemInventoryType: 0
-  quantity: 23
+  quantity: 0
   weight: 10

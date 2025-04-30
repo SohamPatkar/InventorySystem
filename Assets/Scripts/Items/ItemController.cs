@@ -24,6 +24,21 @@ public class ItemController : IInteractable
         itemView.SetItemController(this);
     }
 
+    public void SetItemQuantity()
+    {
+        itemModel.quantity += 1;
+    }
+
+    public int GetItemQuantity()
+    {
+        return itemModel.quantity;
+    }
+
+    public string GetItemId()
+    {
+        return itemModel.id;
+    }
+
     public int GetItemSellingPrice()
     {
         return itemModel.sellingPrice;
@@ -47,12 +62,15 @@ public class ItemController : IInteractable
                 EventService.Instance.AddPlayerItems.InvokeEvent(this);
                 EventService.Instance.UpdateUICoins.InvokeEvent();
                 SetItemInventory(ItemInventoryType.PLAYERINVENTORY);
+                GameService.Instance.GetShopController().RemoveItem(this);
                 GameService.Instance.GetPlayerController().AddItems(this);
                 break;
 
             case ItemInventoryType.PLAYERINVENTORY:
-                GameService.Instance.GetShopController().AddItem(this);
+                EventService.Instance.UpdateUICoins.InvokeEvent();
                 SetItemInventory(ItemInventoryType.SHOPINVENTORY);
+                GameService.Instance.GetShopController().AddItem(this);
+                GameService.Instance.GetPlayerController().RemoveItems(this);
                 break;
         }
     }

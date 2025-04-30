@@ -1,11 +1,13 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class ItemView : MonoBehaviour
 {
     [SerializeField] private Button itemButton;
+    [SerializeField] public TextMeshProUGUI itemQuantity;
+    [HideInInspector] public Sprite itemSprite;
     private ItemController itemController;
-    public Sprite itemSprite;
 
     void Start()
     {

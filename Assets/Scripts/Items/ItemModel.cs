@@ -4,6 +4,7 @@ using UnityEngine;
 public class ItemModel : MonoBehaviour
 {
     public string Name;
+    public string id;
     public string description;
     public Sprite icon;
     public int sellingPrice;
@@ -22,6 +23,7 @@ public class ItemModel : MonoBehaviour
     public void InitializeValues(ItemScriptableObject item)
     {
         Name = item.name;
+        id = item.id;
         description = item.description;
         icon = item.icon;
         sellingPrice = item.sellingPrice;

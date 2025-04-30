@@ -15,7 +15,6 @@ public class EventService
         }
     }
 
-
     public GameEventController<ItemController> AddPlayerItems { get; private set; }
     public GameEventController UpdateUICoins { get; private set; }
 
