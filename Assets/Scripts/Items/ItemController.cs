@@ -34,8 +34,9 @@ public class ItemController : IInteractable
         switch (itemModel.itemInventoryType)
         {
             case ItemInventoryType.SHOPINVENTORY:
-                GameService.Instance.GetPlayerController().AddItems(itemModel);
+                GameService.Instance.GetPlayerController().AddItems(this);
                 SetItemInventory(ItemInventoryType.PLAYERINVENTORY);
+                EventService.Instance.AddPlayerItems.InvokeEvent(this);
                 break;
 
             case ItemInventoryType.PLAYERINVENTORY:

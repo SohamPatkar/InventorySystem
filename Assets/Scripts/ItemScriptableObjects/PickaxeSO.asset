@@ -19,6 +19,6 @@ MonoBehaviour:
   costPrice: 20
   itemRarity: 0
   itemType: 1
-  itemInventoryType: 1
+  itemInventoryType: 2
   quantity: 23
   weight: 10

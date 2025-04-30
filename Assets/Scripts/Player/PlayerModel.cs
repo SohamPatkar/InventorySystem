@@ -3,12 +3,12 @@ using UnityEngine;
 
 public class PlayerModel
 {
-    public int coins;
-    public int carryWeight;
-    public List<ItemModel> items;
+    public int coins = 25;
+    public int carryWeight = 50;
+    public List<ItemController> items;
 
     public PlayerModel()
     {
-        items = new List<ItemModel>();
+        items = new List<ItemController>();
     }
 }

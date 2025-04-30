@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class GameService : MonoBehaviour
@@ -10,6 +11,7 @@ public class GameService : MonoBehaviour
 
     private PlayerController playerController;
     private ShopController shopController;
+    private UIView uIView;
     void Awake()
     {
         if (instance == null)
@@ -26,6 +28,7 @@ public class GameService : MonoBehaviour
     {
         CreatePlayer();
         CreateShop();
+        CreateUIView();
     }
 
     private void CreateShop()
@@ -36,6 +39,11 @@ public class GameService : MonoBehaviour
     private void CreatePlayer()
     {
         playerController = new PlayerController(playerView.GetComponent<PlayerView>(), inventoryPanel);
+    }
+
+    private void CreateUIView()
+    {
+        uIView = new UIView();
     }
 
     public PlayerController GetPlayerController()
