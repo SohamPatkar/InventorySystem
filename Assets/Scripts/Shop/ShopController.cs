@@ -12,6 +12,11 @@ public class ShopController
         this.shopView.SetShopController(this);
     }
 
+    public GameObject GetShopInventory()
+    {
+        return shopView.shopInventoryPanel;
+    }
+
     public void AddItem(ItemController item)
     {
         shopModel.items.Add(item);

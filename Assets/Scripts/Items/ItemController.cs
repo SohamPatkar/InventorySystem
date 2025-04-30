@@ -4,12 +4,12 @@ public class ItemController : IInteractable
 {
     public ItemView itemView;
     public ItemModel itemModel;
-    public GameObject shopView, playerInventory;
+    public GameObject panel;
 
-    public ItemController(ItemScriptableObject itemScriptableObject, ItemView itemView, GameObject shopView)
+    public ItemController(ItemScriptableObject itemScriptableObject, ItemView itemView, GameObject panel)
     {
         itemModel = new ItemModel(itemScriptableObject);
-        this.shopView = shopView;
+        this.panel = panel;
 
 
         CreateItem(itemView);
@@ -17,11 +17,21 @@ public class ItemController : IInteractable
 
     public void CreateItem(ItemView item)
     {
-        GameObject itemObject = GameObject.Instantiate(item.gameObject, shopView.transform);
+        GameObject itemObject = GameObject.Instantiate(item.gameObject, panel.transform);
         itemView = itemObject.GetComponent<ItemView>();
         itemModel.quantity += 1;
         itemView.itemSprite = itemModel.icon;
         itemView.SetItemController(this);
+    }
+
+    public int GetItemSellingPrice()
+    {
+        return itemModel.sellingPrice;
+    }
+
+    public int GetItemCostPrice()
+    {
+        return itemModel.costPrice;
     }
 
     public void SetItemInventory(ItemInventoryType itemInventoryType)
@@ -34,9 +44,10 @@ public class ItemController : IInteractable
         switch (itemModel.itemInventoryType)
         {
             case ItemInventoryType.SHOPINVENTORY:
-                GameService.Instance.GetPlayerController().AddItems(this);
-                SetItemInventory(ItemInventoryType.PLAYERINVENTORY);
                 EventService.Instance.AddPlayerItems.InvokeEvent(this);
+                EventService.Instance.UpdateUICoins.InvokeEvent();
+                SetItemInventory(ItemInventoryType.PLAYERINVENTORY);
+                GameService.Instance.GetPlayerController().AddItems(this);
                 break;
 
             case ItemInventoryType.PLAYERINVENTORY:

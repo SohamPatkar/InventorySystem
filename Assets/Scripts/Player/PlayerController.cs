@@ -15,6 +15,11 @@ public class PlayerController
         this.playerView.SetPlayerController(this);
     }
 
+    public int GetPlayerCoins()
+    {
+        return playerModel.coins;
+    }
+
     public GameObject GetPlayerInventory()
     {
         return playerView.gameObject.transform.GetChild(1).gameObject;
@@ -23,6 +28,18 @@ public class PlayerController
     public void AddItems(ItemController item)
     {
         playerModel.items.Add(item);
+    }
+
+    public void SetPlayerCoins(ItemController item)
+    {
+        if (item.itemModel.itemInventoryType == ItemInventoryType.SHOPINVENTORY)
+        {
+            playerModel.coins -= item.GetItemCostPrice();
+        }
+        else
+        {
+            playerModel.coins += item.GetItemCostPrice();
+        }
     }
 
     public void RemoveItems(ItemController item)

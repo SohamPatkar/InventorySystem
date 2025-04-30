@@ -6,13 +6,13 @@ public class PlayerView : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-
+        EventService.Instance.AddPlayerItems.AddListener(playerController.SetPlayerCoins);
     }
 
     // Update is called once per frame
     void Update()
     {
-        Debug.Log(playerController.GetItemsList().Count);
+
     }
 
     public void SetPlayerController(PlayerController playerController)

@@ -8,10 +8,12 @@ public class GameService : MonoBehaviour
     [SerializeField] private GameObject shopView;
     [SerializeField] private GameObject playerView;
     [SerializeField] private GameObject inventoryPanel;
-
+    [SerializeField] private ItemView itemView;
+    [SerializeField] private ItemScriptableObject[] itemScriptableObjects;
+    [SerializeField] private UIView uIView;
     private PlayerController playerController;
     private ShopController shopController;
-    private UIView uIView;
+
     void Awake()
     {
         if (instance == null)
@@ -28,7 +30,8 @@ public class GameService : MonoBehaviour
     {
         CreatePlayer();
         CreateShop();
-        CreateUIView();
+        uIView.InitializeVariables();
+        CreateShopItems(shopController.GetShopInventory());
     }
 
     private void CreateShop()
@@ -36,14 +39,31 @@ public class GameService : MonoBehaviour
         shopController = new ShopController(shopView.GetComponent<ShopView>(), inventoryPanel.transform);
     }
 
+    public void CreateShopItems(GameObject panel)
+    {
+        foreach (ItemScriptableObject item in itemScriptableObjects)
+        {
+            ItemController newItem = new ItemController(item, itemView, panel);
+            newItem.SetItemInventory(ItemInventoryType.SHOPINVENTORY);
+            shopController.AddItem(newItem);
+        }
+    }
+
+    public void CreatePlayerItems(GameObject panel)
+    {
+        foreach (ItemScriptableObject item in itemScriptableObjects)
+        {
+            ItemController newItem = new ItemController(item, itemView, panel);
+
+            playerController.AddItems(newItem);
+            EventService.Instance.AddPlayerItems.InvokeEvent(newItem);
+            EventService.Instance.UpdateUICoins.InvokeEvent();
+        }
+    }
+
     private void CreatePlayer()
     {
         playerController = new PlayerController(playerView.GetComponent<PlayerView>(), inventoryPanel);
-    }
-
-    private void CreateUIView()
-    {
-        uIView = new UIView();
     }
 
     public PlayerController GetPlayerController()

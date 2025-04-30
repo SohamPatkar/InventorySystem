@@ -3,14 +3,9 @@ using UnityEngine.UI;
 
 public class ItemView : MonoBehaviour
 {
+    [SerializeField] private Button itemButton;
+    private ItemController itemController;
     public Sprite itemSprite;
-    public ItemController itemController;
-    private Button itemButton;
-
-    void Awake()
-    {
-        itemButton = GetComponent<Button>();
-    }
 
     void Start()
     {

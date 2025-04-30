@@ -3,8 +3,8 @@ using UnityEngine;
 
 public class PlayerModel
 {
-    public int coins = 25;
-    public int carryWeight = 50;
+    public int coins = 0;
+    public int carryWeight = 100;
     public List<ItemController> items;
 
     public PlayerModel()
