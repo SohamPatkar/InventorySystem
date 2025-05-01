@@ -55,8 +55,8 @@ public class GameService : MonoBehaviour
         {
             ItemController newItem = new ItemController(item, itemView, panel);
 
-            playerController.AddItems(newItem);
             EventService.Instance.AddPlayerItems.InvokeEvent(newItem);
+            playerController.AddItems(newItem);
             EventService.Instance.UpdateUICoins.InvokeEvent();
         }
     }

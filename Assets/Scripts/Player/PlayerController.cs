@@ -45,7 +45,7 @@ public class PlayerController
         }
         else
         {
-            playerModel.coins += item.GetItemCostPrice();
+            playerModel.coins += item.GetItemSellingPrice();
         }
     }
 

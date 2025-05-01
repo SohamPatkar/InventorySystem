@@ -5,6 +5,7 @@ public class ItemController : IInteractable
     public ItemView itemView;
     public ItemModel itemModel;
     public GameObject panel;
+    private int playerCoins;
 
     public ItemController(ItemScriptableObject itemScriptableObject, ItemView itemView, GameObject panel)
     {
@@ -19,14 +20,30 @@ public class ItemController : IInteractable
     {
         GameObject itemObject = GameObject.Instantiate(item.gameObject, panel.transform);
         itemView = itemObject.GetComponent<ItemView>();
-        itemModel.quantity += 1;
+        SetItemQuantity();
         itemView.itemSprite = itemModel.icon;
+        itemView.itemQuantity.text = GetItemQuantity().ToString();
         itemView.SetItemController(this);
     }
 
     public void SetItemQuantity()
     {
         itemModel.quantity += 1;
+    }
+
+    public string GetItemDescription()
+    {
+        return itemModel.description;
+    }
+
+    public string GetItemName()
+    {
+        return itemModel.Name;
+    }
+
+    public Sprite GetItemSprite()
+    {
+        return itemModel.icon;
     }
 
     public int GetItemQuantity()
@@ -56,14 +73,18 @@ public class ItemController : IInteractable
 
     public void OnInteract()
     {
+        //Get player coins and check if they have the amount
+        playerCoins = GameService.Instance.GetPlayerController().GetPlayerCoins();
+
+        if (playerCoins <= 0 || playerCoins < itemModel.costPrice)
+        {
+            return;
+        }
+
         switch (itemModel.itemInventoryType)
         {
             case ItemInventoryType.SHOPINVENTORY:
-                EventService.Instance.AddPlayerItems.InvokeEvent(this);
-                EventService.Instance.UpdateUICoins.InvokeEvent();
-                SetItemInventory(ItemInventoryType.PLAYERINVENTORY);
-                GameService.Instance.GetShopController().RemoveItem(this);
-                GameService.Instance.GetPlayerController().AddItems(this);
+                EventService.Instance.BuyItem.InvokeEvent(this);
                 break;
 
             case ItemInventoryType.PLAYERINVENTORY:

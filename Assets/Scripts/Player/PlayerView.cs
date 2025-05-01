@@ -12,7 +12,13 @@ public class PlayerView : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        if (playerController.GetItemsList().Count > 0)
+        {
+            foreach (ItemController item in playerController.GetItemsList())
+            {
+                Debug.Log(item.GetItemId());
+            }
+        }
     }
 
     public void SetPlayerController(PlayerController playerController)
