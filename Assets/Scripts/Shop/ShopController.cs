@@ -33,7 +33,6 @@ public class ShopController
         return false;
     }
 
-
     public GameObject GetShopInventory()
     {
         return shopView.shopInventoryPanel;
@@ -55,7 +54,25 @@ public class ShopController
 
     public void RemoveItem(ItemModel item)
     {
-        shopModel.items.Add(item);
+        if (item.quantity > 1)
+        {
+            item.quantity -= 1;
+            EventService.Instance.ShowItemsUI.InvokeEvent();
+            return;
+        }
+        else
+        {
+            item.quantity = 1;
+            Debug.Log(item.nameOfITem + "removed");
+            shopModel.items.Remove(item);
+
+            foreach (ItemModel itemFind in GetList())
+            {
+                Debug.Log(itemFind.id);
+            }
+
+            EventService.Instance.ShowItemsUI.InvokeEvent();
+        }
     }
 
 }

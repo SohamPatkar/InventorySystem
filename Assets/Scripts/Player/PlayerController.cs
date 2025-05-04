@@ -17,6 +17,16 @@ public class PlayerController
         this.playerView.SetPlayerController(this);
     }
 
+    public int GetCarryWeight()
+    {
+        return playerModel.carryWeight;
+    }
+
+    public int GetMaxCarryWeight()
+    {
+        return playerModel.maxCarryWeight;
+    }
+
     public ItemModel GetItemFound()
     {
         return itemFound;
@@ -48,15 +58,24 @@ public class PlayerController
 
     public void AddItems(ItemModel item)
     {
-        if (HasItem(item))
+        if (playerModel.carryWeight >= playerModel.maxCarryWeight)
         {
-            itemFound.quantity += 1;
-
             EventService.Instance.ShowItemsUI.InvokeEvent();
             return;
         }
 
-        playerModel.items.Add(item);
+        if (HasItem(item))
+        {
+            itemFound.quantity += 1;
+            playerModel.carryWeight += item.weight;
+            EventService.Instance.ShowItemsUI.InvokeEvent();
+            return;
+        }
+
+        ItemModel newItem = new ItemModel(item.itemSo);
+
+        playerModel.items.Add(newItem);
+        playerModel.carryWeight += item.weight;
         item.itemInventoryType = ItemInventoryType.PLAYERINVENTORY;
         EventService.Instance.ShowItemsUI.InvokeEvent();
     }

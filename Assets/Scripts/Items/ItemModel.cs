@@ -1,7 +1,6 @@
-
 using UnityEngine;
 
-public class ItemModel : MonoBehaviour
+public class ItemModel
 {
     public string nameOfITem;
     public string id;
@@ -14,9 +13,12 @@ public class ItemModel : MonoBehaviour
     public ItemInventoryType itemInventoryType;
     public int quantity;
     public int weight;
+    public ItemScriptableObject itemSo;
 
     public ItemModel(ItemScriptableObject itemScriptableObject)
     {
+        itemSo = itemScriptableObject;
+
         InitializeValues(itemScriptableObject);
     }
 

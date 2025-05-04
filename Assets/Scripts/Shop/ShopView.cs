@@ -7,10 +7,7 @@ public class ShopView : MonoBehaviour
 
     void Start()
     {
-        foreach (ItemModel item in shopController.GetList())
-        {
-            Debug.Log(item.id);
-        }
+
     }
 
     public void SetShopController(ShopController shopController)
