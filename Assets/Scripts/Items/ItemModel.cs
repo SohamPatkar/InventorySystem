@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class ItemModel : MonoBehaviour
 {
-    public string Name;
+    public string nameOfITem;
     public string id;
     public string description;
     public Sprite icon;
@@ -22,7 +22,7 @@ public class ItemModel : MonoBehaviour
 
     public void InitializeValues(ItemScriptableObject item)
     {
-        Name = item.name;
+        nameOfITem = item.nameOfItem;
         id = item.id;
         description = item.description;
         icon = item.icon;
@@ -34,5 +34,4 @@ public class ItemModel : MonoBehaviour
         quantity = item.quantity;
         weight = item.weight;
     }
-
 }

@@ -7,21 +7,32 @@ public class ItemView : MonoBehaviour
     [SerializeField] private Button itemButton;
     [SerializeField] public TextMeshProUGUI itemQuantity;
     [HideInInspector] public Sprite itemSprite;
-    private ItemController itemController;
 
-    void Start()
+    private ItemModel itemModel;
+
+    void OnEnable()
     {
-        itemButton.image.sprite = itemSprite;
-        itemButton.onClick.AddListener(OnItemClicked);
+        itemButton.onClick.AddListener(OnItemButtonClick);
     }
 
-    private void OnItemClicked()
+    public void SetImage(ItemModel item)
     {
-        itemController?.OnInteract();
+        itemModel = item;
+        itemButton.image.sprite = item.icon;
     }
 
-    public void SetItemController(ItemController controller)
+    public void SetQuantity(ItemModel item)
     {
-        itemController = controller;
+        itemQuantity.text = item.quantity.ToString();
+    }
+
+    private void OnItemButtonClick()
+    {
+        EventService.Instance.OpenBuyPanel.InvokeEvent(itemModel);
+    }
+
+    public void SetItemController()
+    {
+
     }
 }

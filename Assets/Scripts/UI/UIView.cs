@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -7,79 +6,91 @@ public class UIView : MonoBehaviour
 {
     [Header("Player")]
     private PlayerController playerController;
+    private GameObject playerInventory;
     [SerializeField] private TextMeshProUGUI coins;
 
-    [Header("UI View")]
-    [SerializeField] private Button buyButton;
+    [Header("Shop")]
+    private ShopController shopController;
+    private GameObject shopInventory;
+
+    [Header("UI")]
     [SerializeField] private GameObject buyPanel;
+    [SerializeField] private Button addButton, subtractButton, buyButton;
+    [SerializeField] private TextMeshProUGUI nameText, descpText, quantityText, priceText;
+    [SerializeField] private Image itemIcon;
+    private ItemModel tempItemModel;
 
-    [Header("Item")]
-    [SerializeField] private Image buyPanelItemSprite;
-    [SerializeField] private TextMeshProUGUI itemNameText, itemDescriptionText, itemPriceText;
-    private ItemController itemToChange;
-
-    private void Start()
+    private void OnEnable()
     {
-        EventService.Instance.AddPlayerItems.AddListener(UpdatePlayerItems);
-        EventService.Instance.BuyItem.AddListener(ShowBuyPanel);
-        EventService.Instance.AddPlayerItems.AddListener(UpdateShopItems);
-        EventService.Instance.UpdateUICoins.AddListener(SetCoins);
+        EventService.Instance.OpenBuyPanel.AddListener(OpenPanel);
+        EventService.Instance.ShowItemsUI.AddListener(SetItemsShop);
+        EventService.Instance.ShowItemsUI.AddListener(SetItemsPlayer);
     }
 
-    public void InitializeVariables()
+    public void Initialize()
     {
         playerController = GameService.Instance.GetPlayerController();
-        SetCoins();
+        shopController = GameService.Instance.GetShopController();
+        playerInventory = playerController.GetPlayerInventory();
+        shopInventory = shopController.GetShopInventory();
     }
 
-    public void SetCoins()
-    {
-        coins.text = "Coins: " + GameService.Instance.GetPlayerController().GetPlayerCoins();
-    }
-
-    public void ShowBuyPanel(ItemController item)
+    public void OpenPanel(ItemModel item)
     {
         buyPanel.SetActive(true);
-        itemToChange = item;
-        buyPanelItemSprite.sprite = item.GetItemSprite();
-        itemNameText.text = "Name: " + item.GetItemName();
-        itemDescriptionText.text = "Description: " + item.GetItemDescription();
-        itemPriceText.text = "Item Price: " + item.GetItemCostPrice();
+        BuyPanel(item);
     }
 
-    public void BuyButton()
+    public void BuyPanel(ItemModel item)
     {
-        EventService.Instance.AddPlayerItems.InvokeEvent(itemToChange);
-        EventService.Instance.UpdateUICoins.InvokeEvent();
-        itemToChange.SetItemInventory(ItemInventoryType.PLAYERINVENTORY);
-        GameService.Instance.GetShopController().RemoveItem(itemToChange);
-        GameService.Instance.GetPlayerController().AddItems(itemToChange);
+        //setting the details
+        tempItemModel = item;
+
+        itemIcon.sprite = item.icon;
+        nameText.text = "Name: " + item.nameOfITem;
+        descpText.text = "Description: " + item.description;
+
+        if (item.itemInventoryType == ItemInventoryType.SHOPINVENTORY)
+        {
+            priceText.text = "Price: " + item.costPrice;
+        }
+        else if (item.itemInventoryType == ItemInventoryType.PLAYERINVENTORY)
+        {
+            priceText.text = "Price: " + item.sellingPrice;
+        }
+    }
+
+    public void OnClickBuy()
+    {
+        playerController.AddItems(tempItemModel);
         buyPanel.SetActive(false);
     }
 
-    public void UpdatePlayerItems(ItemController item)
+    public void SetItemsShop()
     {
-        if (playerController.HasItem(item))
+        int i = 0;
+
+        foreach (ItemModel item in shopController.GetList())
         {
-            ItemController itemFound = playerController.GetItemFound();
-            itemFound.SetItemQuantity();
-            itemFound.itemView.itemQuantity.text = itemFound.GetItemQuantity().ToString();
-            item.itemView.gameObject.SetActive(false);
+            ItemView newItem = shopInventory.transform.GetChild(i).gameObject.GetComponent<ItemView>();
+
+            newItem.SetImage(item);
+            newItem.SetQuantity(item);
+            i++;
         }
-        else
+    }
+
+    public void SetItemsPlayer()
+    {
+        int i = 0;
+
+        foreach (ItemModel item in playerController.GetItemsList())
         {
-            item.itemView.gameObject.transform.SetParent(playerController.GetPlayerInventory().transform);
+            ItemView newItem = playerInventory.transform.GetChild(i).gameObject.GetComponent<ItemView>();
+
+            newItem.SetImage(item);
+            newItem.SetQuantity(item);
+            i++;
         }
     }
-
-    public void UpdateShopItems(ItemController item)
-    {
-        //To be implemented
-    }
-
-    public void GenerateItemsPlayer()
-    {
-        GameService.Instance.CreatePlayerItems(playerController.GetPlayerInventory());
-    }
-
 }

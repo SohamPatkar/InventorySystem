@@ -1,5 +1,3 @@
-using UnityEngine;
-
 public class EventService
 {
     private static EventService instance;
@@ -15,14 +13,14 @@ public class EventService
         }
     }
 
-    public GameEventController<ItemController> AddPlayerItems { get; private set; }
-    public GameEventController<ItemController> BuyItem { get; private set; }
-    public GameEventController UpdateUICoins { get; private set; }
+    public GameEventController ShowItemsUI { get; private set; }
+    public GameEventController<ItemModel> OpenBuyPanel { get; private set; }
+    public GameEventController<ItemModel> OnBuy { get; private set; }
 
     public EventService()
     {
-        AddPlayerItems = new GameEventController<ItemController>();
-        UpdateUICoins = new GameEventController();
-        BuyItem = new GameEventController<ItemController>();
+        ShowItemsUI = new GameEventController();
+        OpenBuyPanel = new GameEventController<ItemModel>();
+        OnBuy = new GameEventController<ItemModel>();
     }
 }

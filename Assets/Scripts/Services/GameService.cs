@@ -8,7 +8,6 @@ public class GameService : MonoBehaviour
     [SerializeField] private GameObject shopView;
     [SerializeField] private GameObject playerView;
     [SerializeField] private GameObject inventoryPanel;
-    [SerializeField] private ItemView itemView;
     [SerializeField] private ItemScriptableObject[] itemScriptableObjects;
     [SerializeField] private UIView uIView;
     private PlayerController playerController;
@@ -30,8 +29,8 @@ public class GameService : MonoBehaviour
     {
         CreatePlayer();
         CreateShop();
-        uIView.InitializeVariables();
-        CreateShopItems(shopController.GetShopInventory());
+        uIView.Initialize();
+        CreateShopItems();
     }
 
     private void CreateShop()
@@ -39,26 +38,19 @@ public class GameService : MonoBehaviour
         shopController = new ShopController(shopView.GetComponent<ShopView>(), inventoryPanel.transform);
     }
 
-    public void CreateShopItems(GameObject panel)
+    public void CreateShopItems()
     {
         foreach (ItemScriptableObject item in itemScriptableObjects)
         {
-            ItemController newItem = new ItemController(item, itemView, panel);
-            newItem.SetItemInventory(ItemInventoryType.SHOPINVENTORY);
+            ItemModel newItem = new ItemModel(item);
+            newItem.itemInventoryType = ItemInventoryType.SHOPINVENTORY;
             shopController.AddItem(newItem);
         }
     }
 
     public void CreatePlayerItems(GameObject panel)
     {
-        foreach (ItemScriptableObject item in itemScriptableObjects)
-        {
-            ItemController newItem = new ItemController(item, itemView, panel);
 
-            EventService.Instance.AddPlayerItems.InvokeEvent(newItem);
-            playerController.AddItems(newItem);
-            EventService.Instance.UpdateUICoins.InvokeEvent();
-        }
     }
 
     private void CreatePlayer()
