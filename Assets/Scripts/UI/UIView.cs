@@ -15,11 +15,11 @@ public class UIView : MonoBehaviour
 
     [Header("UI")]
     [SerializeField] private GameObject buyPanel, errorText;
-    [SerializeField] private Button addButton, subtractButton, buyButton;
-    [SerializeField] private TextMeshProUGUI nameText, descpText, quantityText, priceText, carryWeight;
+    [SerializeField] private TextMeshProUGUI nameText, descpText, quantityText, priceText, carryWeight, btnText, itemInventType;
     [SerializeField] private Image itemIcon;
     private ItemModel tempItemModel;
     private string errorMessage;
+    private int itemQuantity = 1;
 
     private void OnEnable()
     {
@@ -37,6 +37,26 @@ public class UIView : MonoBehaviour
         shopController = GameService.Instance.GetShopController();
         playerInventory = playerController.GetPlayerInventory();
         shopInventory = shopController.GetShopInventory();
+    }
+
+    public void AddQuantity()
+    {
+        if (itemQuantity < tempItemModel.quantity)
+        {
+            itemQuantity += 1;
+        }
+
+        quantityText.text = "" + itemQuantity;
+    }
+
+    public void SubtractQuantity()
+    {
+        if (itemQuantity > 1)
+        {
+            itemQuantity -= 1;
+        }
+
+        quantityText.text = "" + itemQuantity;
     }
 
     public void SetCoinsText()
@@ -57,36 +77,72 @@ public class UIView : MonoBehaviour
 
     public void BuyPanel(ItemModel item)
     {
+        ResetItemQuantity();
+
         //setting the details
         tempItemModel = item;
 
         itemIcon.sprite = item.icon;
         nameText.text = "Name: " + item.nameOfITem;
         descpText.text = "Description: " + item.description;
+        itemInventType.text = "Belongs to: " + item.itemInventoryType.ToString();
 
         if (item.itemInventoryType == ItemInventoryType.SHOPINVENTORY)
         {
             priceText.text = "Price: " + item.costPrice;
+            btnText.text = "Buy";
         }
         else if (item.itemInventoryType == ItemInventoryType.PLAYERINVENTORY)
         {
             priceText.text = "Price: " + item.sellingPrice;
+            btnText.text = "Sell";
         }
+    }
+
+    public void ResetItemQuantity()
+    {
+        itemQuantity = 1;
+        quantityText.text = "" + itemQuantity;
     }
 
     public void OnClickBuy()
     {
-        if (playerController.GetPlayerCoins() >= tempItemModel.costPrice)
+        if (playerController.GetPlayerCoins() >= tempItemModel.costPrice && tempItemModel.itemInventoryType == ItemInventoryType.SHOPINVENTORY)
         {
-            shopController.RemoveItem(tempItemModel);
-            playerController.AddItems(tempItemModel);
+            for (int i = 0; i < itemQuantity; i++)
+            {
+                shopController.RemoveItem(tempItemModel);
+                playerController.setCoins(tempItemModel);
+                playerController.AddItems(tempItemModel);
+            }
+
+            ResetItemQuantity();
+            DeactivateBuyPanel();
+            return;
+        }
+        else if (tempItemModel.itemInventoryType == ItemInventoryType.PLAYERINVENTORY)
+        {
+            for (int i = 0; i < itemQuantity; i++)
+            {
+                playerController.RemoveItems(tempItemModel);
+                shopController.AddItem(tempItemModel);
+            }
+            ResetItemQuantity();
+            DeactivateBuyPanel();
+            return;
         }
 
         errorMessage = "Not Enough Coins";
         errorText.SetActive(true);
         errorText.GetComponent<TextMeshProUGUI>().text = errorMessage;
+
         Invoke("DisableErrorText", 3f);
 
+        DeactivateBuyPanel();
+    }
+
+    public void DeactivateBuyPanel()
+    {
         buyPanel.SetActive(false);
     }
 

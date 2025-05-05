@@ -42,8 +42,7 @@ public class GameService : MonoBehaviour
     {
         foreach (ItemScriptableObject item in itemScriptableObjects)
         {
-            ItemModel newItem = new ItemModel(item);
-            newItem.itemInventoryType = ItemInventoryType.SHOPINVENTORY;
+            ItemModel newItem = new ItemModel(item, ItemInventoryType.SHOPINVENTORY);
             shopController.AddItem(newItem);
         }
     }
@@ -52,7 +51,8 @@ public class GameService : MonoBehaviour
     {
         int i = UnityEngine.Random.Range(0, itemScriptableObjects.Length);
         ItemScriptableObject item = itemScriptableObjects[i];
-        ItemModel newItem = new ItemModel(item);
+        ItemModel newItem = new ItemModel(item, ItemInventoryType.PLAYERINVENTORY);
+        playerController.setCoins(newItem);
         playerController.AddItems(newItem);
     }
 

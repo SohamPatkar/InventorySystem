@@ -43,7 +43,14 @@ public class ShopController
         if (HasItem(item))
         {
             itemFound.quantity += 1;
+            EventService.Instance.ShowItemsUI.InvokeEvent();
+            return;
+        }
 
+        if (item.itemInventoryType == ItemInventoryType.PLAYERINVENTORY)
+        {
+            ItemModel newItem = new ItemModel(item.itemSo, ItemInventoryType.SHOPINVENTORY);
+            shopModel.items.Add(newItem);
             EventService.Instance.ShowItemsUI.InvokeEvent();
             return;
         }
@@ -54,24 +61,18 @@ public class ShopController
 
     public void RemoveItem(ItemModel item)
     {
-        if (item.quantity > 1)
+        if (HasItem(item))
         {
-            item.quantity -= 1;
-            EventService.Instance.ShowItemsUI.InvokeEvent();
-            return;
-        }
-        else
-        {
-            item.quantity = 1;
-            Debug.Log(item.nameOfITem + "removed");
-            shopModel.items.Remove(item);
-
-            foreach (ItemModel itemFind in GetList())
+            if (itemFound.quantity > 1)
             {
-                Debug.Log(itemFind.id);
+                itemFound.quantity -= 1;
+                EventService.Instance.ShowItemsUI.InvokeEvent();
+                return;
             }
 
+            shopModel.items.Remove(itemFound);
             EventService.Instance.ShowItemsUI.InvokeEvent();
+            return;
         }
     }
 
