@@ -10,16 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9728d702e76a66b4b936d38ed65582de, type: 3}
-  m_Name: SkullSO
+  m_Name: AxeSO
   m_EditorClassIdentifier: 
-  nameOfItem: 
-  id: '#3'
-  description: For Arcane
-  icon: {fileID: 21300000, guid: 1c84373cf4be81c44b97ce70ed9d78e6, type: 3}
-  sellingPrice: 5
-  costPrice: 15
+  nameOfItem: Axe
+  id: '#4'
+  description: To kill
+  icon: {fileID: 21300000, guid: 8708d80070522a043a1ab6a2b2775382, type: 3}
+  sellingPrice: 15
+  costPrice: 25
   itemRarity: 1
-  itemType: 0
+  itemType: 1
   itemInventoryType: 0
   quantity: 1
-  weight: 2
+  weight: 25

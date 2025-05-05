@@ -1,12 +1,13 @@
-using System.Collections;
 using System.Collections.Generic;
+using UnityEditorInternal.Profiling.Memory.Experimental;
 using UnityEngine;
 
 public class PlayerController
 {
     private PlayerModel playerModel;
     private PlayerView playerView;
-    private GameObject inventoryPanel;
+    public GameObject inventoryPanel;
+    private ItemModel itemFound;
 
     public PlayerController(PlayerView playerView, GameObject inventoryPanel)
     {
@@ -16,14 +17,100 @@ public class PlayerController
         this.playerView.SetPlayerController(this);
     }
 
+    public int GetCarryWeight()
+    {
+        return playerModel.carryWeight;
+    }
+
+    public int GetMaxCarryWeight()
+    {
+        return playerModel.maxCarryWeight;
+    }
+
+    public ItemModel GetItemFound()
+    {
+        return itemFound;
+    }
+
+    public bool HasItem(ItemModel item)
+    {
+        foreach (ItemModel findItem in playerModel.items)
+        {
+            if (item.id == findItem.id)
+            {
+                itemFound = findItem;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public int GetPlayerCoins()
+    {
+        return playerModel.coins;
+    }
+
+    public GameObject GetPlayerInventory()
+    {
+        return playerView.gameObject.transform.GetChild(1).gameObject;
+    }
+
     public void AddItems(ItemModel item)
     {
-        playerModel.items.Add(item);
+        if (playerModel.carryWeight + item.weight > playerModel.maxCarryWeight)
+        {
+            return;
+        }
+
+        if (HasItem(item))
+        {
+            itemFound.quantity += 1;
+            playerModel.carryWeight += item.weight;
+
+            EventService.Instance.ShowItemsUI.InvokeEvent();
+            return;
+        }
+
+        //creating new item to add if not already present 
+        ItemModel newItem = new ItemModel(item.itemSo, ItemInventoryType.PLAYERINVENTORY);
+        playerModel.items.Add(newItem);
+        playerModel.carryWeight += item.weight;
+        newItem.itemInventoryType = ItemInventoryType.PLAYERINVENTORY;
+        EventService.Instance.ShowItemsUI.InvokeEvent();
+    }
+
+    public void setCoins(ItemModel item)
+    {
+        if (item.itemInventoryType == ItemInventoryType.NONE || item.itemInventoryType == ItemInventoryType.PLAYERINVENTORY)
+        {
+            playerModel.coins += item.sellingPrice;
+        }
+        else if (item.itemInventoryType == ItemInventoryType.SHOPINVENTORY)
+        {
+            playerModel.coins -= item.costPrice;
+        }
     }
 
     public void RemoveItems(ItemModel item)
     {
-        playerModel.items.Remove(item);
+        if (HasItem(item))
+        {
+            if (itemFound.quantity > 1)
+            {
+                playerModel.carryWeight -= item.weight;
+                itemFound.quantity -= 1;
+                setCoins(item);
+                EventService.Instance.ShowItemsUI.InvokeEvent();
+                return;
+            }
+
+            playerModel.carryWeight -= item.weight;
+            playerModel.items.Remove(itemFound);
+            setCoins(item);
+            EventService.Instance.ShowItemsUI.InvokeEvent();
+            return;
+        }
     }
 
     public List<ItemModel> GetItemsList()

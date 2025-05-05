@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerView : MonoBehaviour
@@ -9,12 +7,6 @@ public class PlayerView : MonoBehaviour
     void Start()
     {
 
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        Debug.Log(playerController.GetItemsList().Count);
     }
 
     public void SetPlayerController(PlayerController playerController)

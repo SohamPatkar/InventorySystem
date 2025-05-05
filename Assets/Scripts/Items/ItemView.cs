@@ -1,30 +1,38 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class ItemView : MonoBehaviour
 {
-    public Sprite itemSprite;
-    public ItemController itemController;
-    private Button itemButton;
+    [SerializeField] private Button itemButton;
+    [SerializeField] public TextMeshProUGUI itemQuantity;
+    [HideInInspector] public Sprite itemSprite;
 
-    void Awake()
+    private ItemModel itemModel;
+
+    void OnEnable()
     {
-        itemButton = GetComponent<Button>();
+        itemButton.onClick.AddListener(OnItemButtonClick);
     }
 
-    void Start()
+    public void SetImage(ItemModel item)
     {
-        itemButton.image.sprite = itemSprite;
-        itemButton.onClick.AddListener(OnItemClicked);
+        itemModel = item;
+        itemButton.image.sprite = item.icon;
     }
 
-    private void OnItemClicked()
+    public void SetQuantity(ItemModel item)
     {
-        itemController?.OnInteract();
+        itemQuantity.text = item.quantity.ToString();
     }
 
-    public void SetItemController(ItemController controller)
+    private void OnItemButtonClick()
     {
-        itemController = controller;
+        EventService.Instance.OpenBuyPanel.InvokeEvent(itemModel);
+    }
+
+    public void SetItemController()
+    {
+
     }
 }
