@@ -19,6 +19,7 @@ public class UIView : MonoBehaviour
     [SerializeField] private TextMeshProUGUI nameText, descpText, quantityText, priceText, carryWeight;
     [SerializeField] private Image itemIcon;
     private ItemModel tempItemModel;
+    private string errorMessage;
 
     private void OnEnable()
     {
@@ -27,6 +28,7 @@ public class UIView : MonoBehaviour
         EventService.Instance.ShowItemsUI.AddListener(SetItemsPlayer);
         EventService.Instance.ShowItemsUI.AddListener(SetCarryWeight);
         EventService.Instance.ShowItemsUI.AddListener(ErrorText);
+        EventService.Instance.ShowItemsUI.AddListener(SetCoinsText);
     }
 
     public void Initialize()
@@ -37,10 +39,20 @@ public class UIView : MonoBehaviour
         shopInventory = shopController.GetShopInventory();
     }
 
+    public void SetCoinsText()
+    {
+        coins.text = "Player Gold: " + playerController.GetPlayerCoins();
+    }
+
     public void OpenPanel(ItemModel item)
     {
         buyPanel.SetActive(true);
         BuyPanel(item);
+    }
+
+    public void AddItemsPlayer()
+    {
+        GameService.Instance.CreatePlayerItems(playerInventory.gameObject);
     }
 
     public void BuyPanel(ItemModel item)
@@ -64,8 +76,16 @@ public class UIView : MonoBehaviour
 
     public void OnClickBuy()
     {
-        shopController.RemoveItem(tempItemModel);
-        playerController.AddItems(tempItemModel);
+        if (playerController.GetPlayerCoins() >= tempItemModel.costPrice)
+        {
+            shopController.RemoveItem(tempItemModel);
+            playerController.AddItems(tempItemModel);
+        }
+
+        errorMessage = "Not Enough Coins";
+        errorText.SetActive(true);
+        errorText.GetComponent<TextMeshProUGUI>().text = errorMessage;
+        Invoke("DisableErrorText", 3f);
 
         buyPanel.SetActive(false);
     }
@@ -79,10 +99,12 @@ public class UIView : MonoBehaviour
     {
         if (playerController.GetCarryWeight() >= playerController.GetMaxCarryWeight())
         {
+            errorMessage = "You are full my friend";
             errorText.SetActive(true);
             errorText.GetComponent<TextMeshProUGUI>().color = Color.red;
-            errorText.GetComponent<TextMeshProUGUI>().text = "You are full my friend";
+            errorText.GetComponent<TextMeshProUGUI>().text = errorMessage;
         }
+
 
         Invoke("DisableErrorText", 3f);
     }
@@ -120,15 +142,27 @@ public class UIView : MonoBehaviour
 
     public void SetItemsPlayer()
     {
-        int i = 0;
+        var playerItems = playerController.GetItemsList();
 
-        foreach (ItemModel item in playerController.GetItemsList())
+        int totalSlots = playerInventory.transform.childCount;
+
+        for (int i = 0; i < totalSlots; i++)
         {
-            ItemView newItem = playerInventory.transform.GetChild(i).gameObject.GetComponent<ItemView>();
+            Transform slot = playerInventory.transform.GetChild(i);
+            ItemView newItem = slot.GetComponent<ItemView>();
 
-            newItem.SetImage(item);
-            newItem.SetQuantity(item);
-            i++;
+            if (i < playerItems.Count)
+            {
+                ItemModel item = playerItems[i];
+
+                slot.gameObject.SetActive(true);
+                newItem.SetImage(item);
+                newItem.SetQuantity(item);
+            }
+            else
+            {
+                slot.gameObject.SetActive(false);
+            }
         }
     }
 

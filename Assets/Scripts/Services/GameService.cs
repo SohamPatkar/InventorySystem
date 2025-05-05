@@ -40,6 +40,7 @@ public class GameService : MonoBehaviour
 
     public void CreateShopItems()
     {
+
         foreach (ItemScriptableObject item in itemScriptableObjects)
         {
             ItemModel newItem = new ItemModel(item);
@@ -50,7 +51,10 @@ public class GameService : MonoBehaviour
 
     public void CreatePlayerItems(GameObject panel)
     {
-
+        int i = UnityEngine.Random.Range(0, itemScriptableObjects.Length);
+        ItemScriptableObject item = itemScriptableObjects[i];
+        ItemModel newItem = new ItemModel(item);
+        playerController.AddItems(newItem);
     }
 
     private void CreatePlayer()

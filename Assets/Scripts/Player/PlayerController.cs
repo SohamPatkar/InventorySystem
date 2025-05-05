@@ -58,6 +58,16 @@ public class PlayerController
 
     public void AddItems(ItemModel item)
     {
+        if (item.itemInventoryType == ItemInventoryType.NONE)
+        {
+            playerModel.coins += item.sellingPrice;
+        }
+        else if (item.itemInventoryType == ItemInventoryType.SHOPINVENTORY)
+        {
+            playerModel.coins -= item.costPrice;
+        }
+
+
         if (playerModel.carryWeight >= playerModel.maxCarryWeight)
         {
             EventService.Instance.ShowItemsUI.InvokeEvent();
