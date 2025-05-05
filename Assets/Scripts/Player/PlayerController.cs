@@ -65,6 +65,7 @@ public class PlayerController
         else if (item.itemInventoryType == ItemInventoryType.SHOPINVENTORY)
         {
             playerModel.coins -= item.costPrice;
+            playerModel.coins += item.sellingPrice;
         }
 
 

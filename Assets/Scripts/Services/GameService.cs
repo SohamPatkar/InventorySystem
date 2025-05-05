@@ -40,7 +40,6 @@ public class GameService : MonoBehaviour
 
     public void CreateShopItems()
     {
-
         foreach (ItemScriptableObject item in itemScriptableObjects)
         {
             ItemModel newItem = new ItemModel(item);
