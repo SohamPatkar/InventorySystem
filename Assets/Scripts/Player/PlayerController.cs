@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using UnityEditorInternal.Profiling.Memory.Experimental;
 using UnityEngine;
 
 public class PlayerController
@@ -73,7 +72,7 @@ public class PlayerController
             return;
         }
 
-        //creating new item to add if not already present 
+
         ItemModel newItem = new ItemModel(item.itemSo, ItemInventoryType.PLAYERINVENTORY);
         playerModel.items.Add(newItem);
         playerModel.carryWeight += item.weight;
