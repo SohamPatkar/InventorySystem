@@ -4,6 +4,8 @@ Design Patterns Implemented:
 
 MVC (Model-View-Controller): Clean separation between data (Models), game logic (Controllers), and UI (Views) for both Player and Shop systems.
 
+Singleton Patter: A Centralized Pattern for GameService and EventService.
+
 Observer Pattern: A centralized EventService manages reactive UI updates by broadcasting events on model changes.
 
 Player System:
