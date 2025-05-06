@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9728d702e76a66b4b936d38ed65582de, type: 3}
   m_Name: PotatoesSO
   m_EditorClassIdentifier: 
-  Name: Potatoes
+  nameOfItem: 
   id: '#2'
   description: Potatoes Ripe
   icon: {fileID: 21300000, guid: 3d9791791d28a9745b616ce8d8113662, type: 3}

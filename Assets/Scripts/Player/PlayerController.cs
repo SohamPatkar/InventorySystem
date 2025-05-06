@@ -60,7 +60,7 @@ public class PlayerController
     {
         if (playerModel.carryWeight >= playerModel.maxCarryWeight)
         {
-            EventService.Instance.ShowItemsUI.InvokeEvent();
+            EventService.Instance.ShowErrorText.InvokeEvent();
             return;
         }
 
@@ -68,21 +68,50 @@ public class PlayerController
         {
             itemFound.quantity += 1;
             playerModel.carryWeight += item.weight;
+
             EventService.Instance.ShowItemsUI.InvokeEvent();
             return;
         }
 
-        ItemModel newItem = new ItemModel(item.itemSo);
-
+        //creating new item to add if not already present 
+        ItemModel newItem = new ItemModel(item.itemSo, ItemInventoryType.PLAYERINVENTORY);
         playerModel.items.Add(newItem);
         playerModel.carryWeight += item.weight;
-        item.itemInventoryType = ItemInventoryType.PLAYERINVENTORY;
+        newItem.itemInventoryType = ItemInventoryType.PLAYERINVENTORY;
         EventService.Instance.ShowItemsUI.InvokeEvent();
+    }
+
+    public void setCoins(ItemModel item)
+    {
+        if (item.itemInventoryType == ItemInventoryType.NONE || item.itemInventoryType == ItemInventoryType.PLAYERINVENTORY)
+        {
+            playerModel.coins += item.sellingPrice;
+        }
+        else if (item.itemInventoryType == ItemInventoryType.SHOPINVENTORY)
+        {
+            playerModel.coins -= item.costPrice;
+        }
     }
 
     public void RemoveItems(ItemModel item)
     {
-        playerModel.items.Remove(item);
+        if (HasItem(item))
+        {
+            if (itemFound.quantity > 1)
+            {
+                playerModel.carryWeight -= item.weight;
+                itemFound.quantity -= 1;
+                setCoins(item);
+                EventService.Instance.ShowItemsUI.InvokeEvent();
+                return;
+            }
+
+            playerModel.carryWeight -= item.weight;
+            playerModel.items.Remove(itemFound);
+            setCoins(item);
+            EventService.Instance.ShowItemsUI.InvokeEvent();
+            return;
+        }
     }
 
     public List<ItemModel> GetItemsList()

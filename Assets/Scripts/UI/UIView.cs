@@ -14,11 +14,12 @@ public class UIView : MonoBehaviour
     private GameObject shopInventory;
 
     [Header("UI")]
-    [SerializeField] private GameObject buyPanel, errorText;
-    [SerializeField] private Button addButton, subtractButton, buyButton;
-    [SerializeField] private TextMeshProUGUI nameText, descpText, quantityText, priceText, carryWeight;
+    [SerializeField] private GameObject buyPanel, popupText;
+    [SerializeField] private TextMeshProUGUI nameText, descpText, quantityText, priceText, carryWeight, btnText, itemInventType;
     [SerializeField] private Image itemIcon;
     private ItemModel tempItemModel;
+    private string errorMessage, popupMessage;
+    private int itemQuantity = 1;
 
     private void OnEnable()
     {
@@ -26,7 +27,8 @@ public class UIView : MonoBehaviour
         EventService.Instance.ShowItemsUI.AddListener(SetItemsShop);
         EventService.Instance.ShowItemsUI.AddListener(SetItemsPlayer);
         EventService.Instance.ShowItemsUI.AddListener(SetCarryWeight);
-        EventService.Instance.ShowItemsUI.AddListener(ErrorText);
+        EventService.Instance.ShowErrorText.AddListener(ErrorText);
+        EventService.Instance.ShowItemsUI.AddListener(SetCoinsText);
     }
 
     public void Initialize()
@@ -37,36 +39,129 @@ public class UIView : MonoBehaviour
         shopInventory = shopController.GetShopInventory();
     }
 
+    public void AddQuantity()
+    {
+        if (itemQuantity < tempItemModel.quantity)
+        {
+            itemQuantity += 1;
+        }
+
+        quantityText.text = "" + itemQuantity;
+    }
+
+    public void SubtractQuantity()
+    {
+        if (itemQuantity > 1)
+        {
+            itemQuantity -= 1;
+        }
+
+        quantityText.text = "" + itemQuantity;
+    }
+
+    public void SetCoinsText()
+    {
+        coins.text = "Player Gold: " + playerController.GetPlayerCoins();
+    }
+
     public void OpenPanel(ItemModel item)
     {
         buyPanel.SetActive(true);
         BuyPanel(item);
     }
 
+    public void AddItemsPlayer()
+    {
+        GameService.Instance.CreatePlayerItems(playerInventory.gameObject);
+    }
+
     public void BuyPanel(ItemModel item)
     {
+        ResetItemQuantity();
+
         //setting the details
         tempItemModel = item;
 
         itemIcon.sprite = item.icon;
         nameText.text = "Name: " + item.nameOfITem;
         descpText.text = "Description: " + item.description;
+        itemInventType.text = "Belongs to: " + item.itemInventoryType.ToString();
 
         if (item.itemInventoryType == ItemInventoryType.SHOPINVENTORY)
         {
             priceText.text = "Price: " + item.costPrice;
+            btnText.text = "Buy";
         }
         else if (item.itemInventoryType == ItemInventoryType.PLAYERINVENTORY)
         {
             priceText.text = "Price: " + item.sellingPrice;
+            btnText.text = "Sell";
         }
+    }
+
+    public void ResetItemQuantity()
+    {
+        itemQuantity = 1;
+        quantityText.text = "" + itemQuantity;
     }
 
     public void OnClickBuy()
     {
-        shopController.RemoveItem(tempItemModel);
-        playerController.AddItems(tempItemModel);
+        if (playerController.GetPlayerCoins() >= tempItemModel.costPrice && tempItemModel.itemInventoryType == ItemInventoryType.SHOPINVENTORY)
+        {
+            if (playerController.GetCarryWeight() >= playerController.GetMaxCarryWeight())
+            {
+                EventService.Instance.ShowErrorText.InvokeEvent();
+                return;
+            }
 
+            for (int i = 0; i < itemQuantity; i++)
+            {
+                shopController.RemoveItem(tempItemModel);
+                playerController.setCoins(tempItemModel);
+                playerController.AddItems(tempItemModel);
+            }
+
+            popupMessage = "Item bought";
+            SetPopupText(popupMessage);
+            Invoke("DisableErrorText", 3f);
+
+            GameService.Instance.GetSoundManager().PlaySfx(SoundType.BOUGHTSOUND);
+
+            ResetItemQuantity();
+            DeactivateBuyPanel();
+
+            return;
+        }
+        else if (tempItemModel.itemInventoryType == ItemInventoryType.PLAYERINVENTORY)
+        {
+            for (int i = 0; i < itemQuantity; i++)
+            {
+                playerController.RemoveItems(tempItemModel);
+                shopController.AddItem(tempItemModel);
+            }
+
+            popupMessage = "Item sold";
+            SetPopupText(popupMessage);
+            Invoke("DisableErrorText", 3f);
+
+            GameService.Instance.GetSoundManager().PlaySfx(SoundType.SOLDSOUND);
+
+            ResetItemQuantity();
+            DeactivateBuyPanel();
+
+            return;
+        }
+
+        errorMessage = "Not Enough Coins";
+        SetPopupText(errorMessage);
+        Invoke("DisableErrorText", 3f);
+
+        DeactivateBuyPanel();
+    }
+
+    public void DeactivateBuyPanel()
+    {
         buyPanel.SetActive(false);
     }
 
@@ -79,17 +174,23 @@ public class UIView : MonoBehaviour
     {
         if (playerController.GetCarryWeight() >= playerController.GetMaxCarryWeight())
         {
-            errorText.SetActive(true);
-            errorText.GetComponent<TextMeshProUGUI>().color = Color.red;
-            errorText.GetComponent<TextMeshProUGUI>().text = "You are full my friend";
+            errorMessage = "You are full my friend";
+            SetPopupText(errorMessage);
         }
 
         Invoke("DisableErrorText", 3f);
     }
 
+    public void SetPopupText(string message)
+    {
+        popupText.SetActive(true);
+        popupText.GetComponent<TextMeshProUGUI>().color = Color.red;
+        popupText.GetComponent<TextMeshProUGUI>().text = message;
+    }
+
     public void DisableErrorText()
     {
-        errorText.SetActive(false);
+        popupText.SetActive(false);
     }
 
     public void SetItemsShop()
@@ -120,15 +221,27 @@ public class UIView : MonoBehaviour
 
     public void SetItemsPlayer()
     {
-        int i = 0;
+        var playerItems = playerController.GetItemsList();
 
-        foreach (ItemModel item in playerController.GetItemsList())
+        int totalSlots = playerInventory.transform.childCount;
+
+        for (int i = 0; i < totalSlots; i++)
         {
-            ItemView newItem = playerInventory.transform.GetChild(i).gameObject.GetComponent<ItemView>();
+            Transform slot = playerInventory.transform.GetChild(i);
+            ItemView newItem = slot.GetComponent<ItemView>();
 
-            newItem.SetImage(item);
-            newItem.SetQuantity(item);
-            i++;
+            if (i < playerItems.Count)
+            {
+                ItemModel item = playerItems[i];
+
+                slot.gameObject.SetActive(true);
+                newItem.SetImage(item);
+                newItem.SetQuantity(item);
+            }
+            else
+            {
+                slot.gameObject.SetActive(false);
+            }
         }
     }
 
@@ -138,6 +251,7 @@ public class UIView : MonoBehaviour
         EventService.Instance.ShowItemsUI.RemoveListener(SetItemsShop);
         EventService.Instance.ShowItemsUI.RemoveListener(SetItemsPlayer);
         EventService.Instance.ShowItemsUI.RemoveListener(SetCarryWeight);
+        EventService.Instance.ShowErrorText.RemoveListener(ErrorText);
     }
 
 }

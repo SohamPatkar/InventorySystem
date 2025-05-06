@@ -15,14 +15,14 @@ public class ItemModel
     public int weight;
     public ItemScriptableObject itemSo;
 
-    public ItemModel(ItemScriptableObject itemScriptableObject)
+    public ItemModel(ItemScriptableObject itemScriptableObject, ItemInventoryType itemInventoryType)
     {
         itemSo = itemScriptableObject;
 
-        InitializeValues(itemScriptableObject);
+        InitializeValues(itemScriptableObject, itemInventoryType);
     }
 
-    public void InitializeValues(ItemScriptableObject item)
+    public void InitializeValues(ItemScriptableObject item, ItemInventoryType itemInventoryType)
     {
         nameOfITem = item.nameOfItem;
         id = item.id;
@@ -32,7 +32,7 @@ public class ItemModel
         costPrice = item.costPrice;
         itemRarity = item.itemRarity;
         itemType = item.itemType;
-        itemInventoryType = item.itemInventoryType;
+        this.itemInventoryType = itemInventoryType;
         quantity = item.quantity;
         weight = item.weight;
     }

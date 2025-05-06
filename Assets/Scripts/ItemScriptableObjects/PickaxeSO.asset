@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9728d702e76a66b4b936d38ed65582de, type: 3}
   m_Name: PickaxeSO
   m_EditorClassIdentifier: 
-  Name: Pickaxe
+  nameOfItem: 
   id: '#1'
   description: To mine Gold
   icon: {fileID: 21300000, guid: 45cfe68fb47a8514f96477d0fb432286, type: 3}
