@@ -578,6 +578,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 2a3ef0cf13c50634f940100fad05f191, type: 2}
   - {fileID: 11400000, guid: 2a3ef0cf13c50634f940100fad05f191, type: 2}
   - {fileID: 11400000, guid: 2a3ef0cf13c50634f940100fad05f191, type: 2}
+  - {fileID: 11400000, guid: 8a7b36bdf76d8a741b0458ed800db79e, type: 2}
+  - {fileID: 11400000, guid: 8a7b36bdf76d8a741b0458ed800db79e, type: 2}
   uIView: {fileID: 653681547}
   sounds:
   - audioType: 0
