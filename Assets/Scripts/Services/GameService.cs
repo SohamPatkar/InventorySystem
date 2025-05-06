@@ -10,6 +10,11 @@ public class GameService : MonoBehaviour
     [SerializeField] private GameObject inventoryPanel;
     [SerializeField] private ItemScriptableObject[] itemScriptableObjects;
     [SerializeField] private UIView uIView;
+
+    [Header("Sound System")]
+    [SerializeField] private Sound[] sounds;
+    [SerializeField] private AudioSource sfxSource;
+    private SoundManager soundManager;
     private PlayerController playerController;
     private ShopController shopController;
 
@@ -29,6 +34,7 @@ public class GameService : MonoBehaviour
     {
         CreatePlayer();
         CreateShop();
+        CreateSoundManager();
         uIView.Initialize();
         CreateShopItems();
     }
@@ -38,13 +44,18 @@ public class GameService : MonoBehaviour
         shopController = new ShopController(shopView.GetComponent<ShopView>(), inventoryPanel.transform);
     }
 
-    public void CreateShopItems()
+    private void CreateShopItems()
     {
         foreach (ItemScriptableObject item in itemScriptableObjects)
         {
             ItemModel newItem = new ItemModel(item, ItemInventoryType.SHOPINVENTORY);
             shopController.AddItem(newItem);
         }
+    }
+
+    private void CreateSoundManager()
+    {
+        soundManager = new SoundManager(sfxSource, sounds);
     }
 
     public void CreatePlayerItems(GameObject panel)
@@ -64,6 +75,11 @@ public class GameService : MonoBehaviour
     public PlayerController GetPlayerController()
     {
         return playerController;
+    }
+
+    public SoundManager GetSoundManager()
+    {
+        return soundManager;
     }
 
     public ShopController GetShopController()

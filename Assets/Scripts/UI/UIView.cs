@@ -14,11 +14,11 @@ public class UIView : MonoBehaviour
     private GameObject shopInventory;
 
     [Header("UI")]
-    [SerializeField] private GameObject buyPanel, errorText;
+    [SerializeField] private GameObject buyPanel, popupText;
     [SerializeField] private TextMeshProUGUI nameText, descpText, quantityText, priceText, carryWeight, btnText, itemInventType;
     [SerializeField] private Image itemIcon;
     private ItemModel tempItemModel;
-    private string errorMessage;
+    private string errorMessage, popupMessage;
     private int itemQuantity = 1;
 
     private void OnEnable()
@@ -27,7 +27,7 @@ public class UIView : MonoBehaviour
         EventService.Instance.ShowItemsUI.AddListener(SetItemsShop);
         EventService.Instance.ShowItemsUI.AddListener(SetItemsPlayer);
         EventService.Instance.ShowItemsUI.AddListener(SetCarryWeight);
-        EventService.Instance.ShowItemsUI.AddListener(ErrorText);
+        EventService.Instance.ShowErrorText.AddListener(ErrorText);
         EventService.Instance.ShowItemsUI.AddListener(SetCoinsText);
     }
 
@@ -109,6 +109,12 @@ public class UIView : MonoBehaviour
     {
         if (playerController.GetPlayerCoins() >= tempItemModel.costPrice && tempItemModel.itemInventoryType == ItemInventoryType.SHOPINVENTORY)
         {
+            if (playerController.GetCarryWeight() >= playerController.GetMaxCarryWeight())
+            {
+                EventService.Instance.ShowErrorText.InvokeEvent();
+                return;
+            }
+
             for (int i = 0; i < itemQuantity; i++)
             {
                 shopController.RemoveItem(tempItemModel);
@@ -116,8 +122,15 @@ public class UIView : MonoBehaviour
                 playerController.AddItems(tempItemModel);
             }
 
+            popupMessage = "Item bought";
+            SetPopupText(popupMessage);
+            Invoke("DisableErrorText", 3f);
+
+            GameService.Instance.GetSoundManager().PlaySfx(SoundType.BOUGHTSOUND);
+
             ResetItemQuantity();
             DeactivateBuyPanel();
+
             return;
         }
         else if (tempItemModel.itemInventoryType == ItemInventoryType.PLAYERINVENTORY)
@@ -127,15 +140,21 @@ public class UIView : MonoBehaviour
                 playerController.RemoveItems(tempItemModel);
                 shopController.AddItem(tempItemModel);
             }
+
+            popupMessage = "Item sold";
+            SetPopupText(popupMessage);
+            Invoke("DisableErrorText", 3f);
+
+            GameService.Instance.GetSoundManager().PlaySfx(SoundType.SOLDSOUND);
+
             ResetItemQuantity();
             DeactivateBuyPanel();
+
             return;
         }
 
         errorMessage = "Not Enough Coins";
-        errorText.SetActive(true);
-        errorText.GetComponent<TextMeshProUGUI>().text = errorMessage;
-
+        SetPopupText(errorMessage);
         Invoke("DisableErrorText", 3f);
 
         DeactivateBuyPanel();
@@ -156,18 +175,22 @@ public class UIView : MonoBehaviour
         if (playerController.GetCarryWeight() >= playerController.GetMaxCarryWeight())
         {
             errorMessage = "You are full my friend";
-            errorText.SetActive(true);
-            errorText.GetComponent<TextMeshProUGUI>().color = Color.red;
-            errorText.GetComponent<TextMeshProUGUI>().text = errorMessage;
+            SetPopupText(errorMessage);
         }
-
 
         Invoke("DisableErrorText", 3f);
     }
 
+    public void SetPopupText(string message)
+    {
+        popupText.SetActive(true);
+        popupText.GetComponent<TextMeshProUGUI>().color = Color.red;
+        popupText.GetComponent<TextMeshProUGUI>().text = message;
+    }
+
     public void DisableErrorText()
     {
-        errorText.SetActive(false);
+        popupText.SetActive(false);
     }
 
     public void SetItemsShop()
@@ -228,6 +251,7 @@ public class UIView : MonoBehaviour
         EventService.Instance.ShowItemsUI.RemoveListener(SetItemsShop);
         EventService.Instance.ShowItemsUI.RemoveListener(SetItemsPlayer);
         EventService.Instance.ShowItemsUI.RemoveListener(SetCarryWeight);
+        EventService.Instance.ShowErrorText.RemoveListener(ErrorText);
     }
 
 }
