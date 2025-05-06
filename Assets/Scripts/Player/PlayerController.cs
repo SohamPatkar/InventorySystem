@@ -58,8 +58,9 @@ public class PlayerController
 
     public void AddItems(ItemModel item)
     {
-        if (playerModel.carryWeight + item.weight > playerModel.maxCarryWeight)
+        if (playerModel.carryWeight >= playerModel.maxCarryWeight)
         {
+            EventService.Instance.ShowErrorText.InvokeEvent();
             return;
         }
 
