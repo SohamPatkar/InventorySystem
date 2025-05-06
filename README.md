@@ -1,4 +1,5 @@
-##Inventory System Overview
+Inventory System Overview
+
 Design Patterns Implemented:
 
 MVC (Model-View-Controller): Clean separation between data (Models), game logic (Controllers), and UI (Views) for both Player and Shop systems.
@@ -17,7 +18,7 @@ ShopModel contains the shop’s inventory.
 
 ShopController handles item exchanges between the shop and the player.
 
-UI System (UIView):
+##UI System (UIView):
 
 Listens to model events via EventService to ensure real-time updates.
 
