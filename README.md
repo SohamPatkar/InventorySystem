@@ -1,4 +1,4 @@
-#Inventory System Overview
+Inventory System Overview
 
 Design Patterns Implemented:
 
@@ -28,10 +28,4 @@ Handles user interactions like buying/selling and updates the view accordingly.
 
 Event Flow Summary:
 
-User Action (Buy/Sell)
-        ↓
-Controller updates Model
-        ↓
-Model triggers Event
-        ↓
-UIView updates UI
+User Action (Buy/Sell) -> Controller updates Model -> Model triggers Event -> UIView updates UI
