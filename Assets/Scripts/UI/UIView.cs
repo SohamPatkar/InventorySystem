@@ -116,6 +116,7 @@ public class UIView : MonoBehaviour
                 playerController.AddItems(tempItemModel);
             }
 
+            GameService.Instance.GetSoundManager().PlaySfx(SoundType.BOUGHTSOUND);
             ResetItemQuantity();
             DeactivateBuyPanel();
             return;
@@ -127,6 +128,8 @@ public class UIView : MonoBehaviour
                 playerController.RemoveItems(tempItemModel);
                 shopController.AddItem(tempItemModel);
             }
+
+            GameService.Instance.GetSoundManager().PlaySfx(SoundType.SOLDSOUND);
             ResetItemQuantity();
             DeactivateBuyPanel();
             return;
