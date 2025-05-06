@@ -89,6 +89,11 @@ public class PlayerController
         else if (item.itemInventoryType == ItemInventoryType.SHOPINVENTORY)
         {
             playerModel.coins -= item.costPrice;
+
+            if (playerModel.coins < 0)
+            {
+                playerModel.coins = 0;
+            }
         }
     }
 

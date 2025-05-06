@@ -107,7 +107,7 @@ public class UIView : MonoBehaviour
 
     public void OnClickBuy()
     {
-        if (playerController.GetPlayerCoins() >= tempItemModel.costPrice && tempItemModel.itemInventoryType == ItemInventoryType.SHOPINVENTORY)
+        if (playerController.GetPlayerCoins() >= tempItemModel.costPrice * itemQuantity && tempItemModel.itemInventoryType == ItemInventoryType.SHOPINVENTORY)
         {
             if (playerController.GetCarryWeight() >= playerController.GetMaxCarryWeight())
             {
@@ -118,6 +118,7 @@ public class UIView : MonoBehaviour
             for (int i = 0; i < itemQuantity; i++)
             {
                 shopController.RemoveItem(tempItemModel);
+                tempItemModel.itemInventoryType = ItemInventoryType.SHOPINVENTORY;
                 playerController.setCoins(tempItemModel);
                 playerController.AddItems(tempItemModel);
             }
