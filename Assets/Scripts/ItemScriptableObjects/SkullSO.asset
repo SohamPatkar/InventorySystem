@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9728d702e76a66b4b936d38ed65582de, type: 3}
   m_Name: SkullSO
   m_EditorClassIdentifier: 
-  nameOfItem: 
+  nameOfItem: Skull
   id: '#3'
   description: For Arcane
   icon: {fileID: 21300000, guid: 1c84373cf4be81c44b97ce70ed9d78e6, type: 3}

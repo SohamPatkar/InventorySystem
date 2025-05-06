@@ -24,7 +24,7 @@ public class ItemModel
 
     public void InitializeValues(ItemScriptableObject item, ItemInventoryType itemInventoryType)
     {
-        nameOfITem = item.nameOfItem;
+        this.nameOfITem = item.nameOfItem;
         id = item.id;
         description = item.description;
         icon = item.icon;
