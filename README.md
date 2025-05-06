@@ -1,4 +1,4 @@
-#INVENTORY SYSTEM
+#inventory system
 
 Design Pattern Used:
 
