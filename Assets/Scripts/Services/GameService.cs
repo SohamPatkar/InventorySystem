@@ -63,7 +63,7 @@ public class GameService : MonoBehaviour
         int i = UnityEngine.Random.Range(0, itemScriptableObjects.Length);
         ItemScriptableObject item = itemScriptableObjects[i];
 
-        ItemModel newItem = new ItemModel(item, ItemInventoryType.PLAYERINVENTORY);
+        ItemModel newItem = new ItemModel(item, ItemInventoryType.NONE);
 
         playerController.setCoins(newItem);
         playerController.AddItems(newItem);
