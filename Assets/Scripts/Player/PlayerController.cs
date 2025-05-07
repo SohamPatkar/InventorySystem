@@ -77,6 +77,7 @@ public class PlayerController
             playerModel.items.Add(item);
             playerModel.carryWeight += item.weight;
             item.itemInventoryType = ItemInventoryType.PLAYERINVENTORY;
+            EventService.Instance.ShowItemsUI.InvokeEvent();
         }
         else
         {
