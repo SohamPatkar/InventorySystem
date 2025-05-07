@@ -1,4 +1,4 @@
-Inventory System Overview
+# Inventory System Overview
 
 Design Patterns Implemented:
 
