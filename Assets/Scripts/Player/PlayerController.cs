@@ -72,12 +72,20 @@ public class PlayerController
             return;
         }
 
-
-        ItemModel newItem = new ItemModel(item.itemSo, ItemInventoryType.PLAYERINVENTORY);
-        playerModel.items.Add(newItem);
-        playerModel.carryWeight += item.weight;
-        newItem.itemInventoryType = ItemInventoryType.PLAYERINVENTORY;
-        EventService.Instance.ShowItemsUI.InvokeEvent();
+        if (item.itemInventoryType == ItemInventoryType.NONE)
+        {
+            playerModel.items.Add(item);
+            playerModel.carryWeight += item.weight;
+            item.itemInventoryType = ItemInventoryType.PLAYERINVENTORY;
+        }
+        else
+        {
+            ItemModel newItem = new ItemModel(item.itemSo, ItemInventoryType.PLAYERINVENTORY);
+            playerModel.items.Add(newItem);
+            playerModel.carryWeight += item.weight;
+            newItem.itemInventoryType = ItemInventoryType.PLAYERINVENTORY;
+            EventService.Instance.ShowItemsUI.InvokeEvent();
+        }
     }
 
     public void setCoins(ItemModel item)
