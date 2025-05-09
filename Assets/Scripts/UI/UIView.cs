@@ -19,16 +19,23 @@ public class UIView : MonoBehaviour
     [SerializeField] private Image itemIcon;
     private ItemModel tempItemModel;
     private string errorMessage, popupMessage;
+    private bool isProcessingBuy = false;
     private int itemQuantity = 1;
+    private bool isInitialized = false;
 
-    private void OnEnable()
+    private void Awake()
     {
-        EventService.Instance.OpenBuyPanel.AddListener(OpenPanel);
-        EventService.Instance.ShowItemsUI.AddListener(SetItemsShop);
-        EventService.Instance.ShowItemsUI.AddListener(SetItemsPlayer);
-        EventService.Instance.ShowItemsUI.AddListener(SetCarryWeight);
-        EventService.Instance.ShowErrorText.AddListener(ErrorText);
-        EventService.Instance.ShowItemsUI.AddListener(SetCoinsText);
+        if (!isInitialized)
+        {
+            EventService.Instance.OpenBuyPanel.AddListener(OpenPanel);
+            EventService.Instance.ShowItemsUI.AddListener(SetItemsShop);
+            EventService.Instance.ShowItemsUI.AddListener(SetItemsPlayer);
+            EventService.Instance.ShowItemsUI.AddListener(SetCarryWeight);
+            EventService.Instance.ShowItemsUI.AddListener(SetCoinsText);
+            EventService.Instance.ShowErrorText.AddListener(ErrorText);
+
+            isInitialized = true;
+        }
     }
 
     public void Initialize()
@@ -97,6 +104,10 @@ public class UIView : MonoBehaviour
             priceText.text = "Price: " + item.sellingPrice;
             btnText.text = "Sell";
         }
+        else
+        {
+            Debug.Log("Kill me please I don't code nicely");
+        }
     }
 
     public void ResetItemQuantity()
@@ -109,6 +120,8 @@ public class UIView : MonoBehaviour
     {
         if (playerController.GetPlayerCoins() >= tempItemModel.costPrice * itemQuantity && tempItemModel.itemInventoryType == ItemInventoryType.SHOPINVENTORY)
         {
+
+
             if (playerController.GetCarryWeight() >= playerController.GetMaxCarryWeight())
             {
                 EventService.Instance.ShowErrorText.InvokeEvent();
@@ -118,8 +131,7 @@ public class UIView : MonoBehaviour
             for (int i = 0; i < itemQuantity; i++)
             {
                 shopController.RemoveItem(tempItemModel);
-                tempItemModel.itemInventoryType = ItemInventoryType.SHOPINVENTORY;
-                playerController.setCoins(tempItemModel);
+                playerController.SetCoins(tempItemModel);
                 playerController.AddItems(tempItemModel);
             }
 
@@ -140,6 +152,8 @@ public class UIView : MonoBehaviour
             {
                 playerController.RemoveItems(tempItemModel);
                 shopController.AddItem(tempItemModel);
+
+                Debug.Log($"Buy clicked with quantity: {itemQuantity}");
             }
 
             popupMessage = "Item sold";
@@ -156,6 +170,7 @@ public class UIView : MonoBehaviour
 
         errorMessage = "Not Enough Coins";
         SetPopupText(errorMessage);
+
         Invoke("DisableErrorText", 3f);
 
         DeactivateBuyPanel();
@@ -254,6 +269,5 @@ public class UIView : MonoBehaviour
         EventService.Instance.ShowItemsUI.RemoveListener(SetCarryWeight);
         EventService.Instance.ShowErrorText.RemoveListener(ErrorText);
     }
-
 }
 

@@ -65,7 +65,6 @@ public class GameService : MonoBehaviour
 
         ItemModel newItem = new ItemModel(item, ItemInventoryType.NONE);
 
-        playerController.setCoins(newItem);
         playerController.AddItems(newItem);
     }
 

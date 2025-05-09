@@ -89,7 +89,7 @@ public class PlayerController
         }
     }
 
-    public void setCoins(ItemModel item)
+    public void SetCoins(ItemModel item)
     {
         if (item.itemInventoryType == ItemInventoryType.NONE || item.itemInventoryType == ItemInventoryType.PLAYERINVENTORY)
         {
@@ -114,14 +114,14 @@ public class PlayerController
             {
                 playerModel.carryWeight -= item.weight;
                 itemFound.quantity -= 1;
-                setCoins(item);
+                SetCoins(item);
                 EventService.Instance.ShowItemsUI.InvokeEvent();
                 return;
             }
 
             playerModel.carryWeight -= item.weight;
             playerModel.items.Remove(itemFound);
-            setCoins(item);
+            SetCoins(item);
             EventService.Instance.ShowItemsUI.InvokeEvent();
             return;
         }
