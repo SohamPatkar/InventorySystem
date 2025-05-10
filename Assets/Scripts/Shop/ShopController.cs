@@ -76,4 +76,9 @@ public class ShopController
         }
     }
 
+    public void TabCall(ItemType itemType)
+    {
+        EventService.Instance.TabPressed.InvokeEvent(itemType);
+    }
+
 }
