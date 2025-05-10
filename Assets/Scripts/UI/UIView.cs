@@ -93,6 +93,11 @@ public class UIView : MonoBehaviour
         buyPanel.SetActive(false);
     }
 
+    public void CancelTransaction()
+    {
+        confirmationPanel.SetActive(false);
+    }
+
     public void SetCarryWeight()
     {
         carryWeight.text = "Carry Weight: " + playerController.GetCarryWeight();
