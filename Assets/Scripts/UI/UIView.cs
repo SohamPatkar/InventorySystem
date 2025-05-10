@@ -1,4 +1,6 @@
+using System.Collections;
 using TMPro;
+using UnityEditor.VersionControl;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -14,21 +16,28 @@ public class UIView : MonoBehaviour
     private GameObject shopInventory;
 
     [Header("UI")]
-    [SerializeField] private GameObject buyPanel, popupText;
-    [SerializeField] private TextMeshProUGUI nameText, descpText, quantityText, priceText, carryWeight, btnText, itemInventType;
+    [SerializeField] private GameObject buyPanel, popupText, confirmationPanel;
+    [SerializeField] private TextMeshProUGUI nameText, descpText, quantityText, priceText, carryWeight, btnText, itemInventType, confirmationText;
     [SerializeField] private Image itemIcon;
     private ItemModel tempItemModel;
     private string errorMessage, popupMessage;
     private int itemQuantity = 1;
+    private bool isInitialized = false;
 
-    private void OnEnable()
+    private void Awake()
     {
-        EventService.Instance.OpenBuyPanel.AddListener(OpenPanel);
-        EventService.Instance.ShowItemsUI.AddListener(SetItemsShop);
-        EventService.Instance.ShowItemsUI.AddListener(SetItemsPlayer);
-        EventService.Instance.ShowItemsUI.AddListener(SetCarryWeight);
-        EventService.Instance.ShowErrorText.AddListener(ErrorText);
-        EventService.Instance.ShowItemsUI.AddListener(SetCoinsText);
+        if (!isInitialized)
+        {
+            EventService.Instance.OpenBuyPanel.AddListener(OpenPanel);
+            EventService.Instance.ShowItemsUI.AddListener(SetItemsShop);
+            EventService.Instance.ShowItemsUI.AddListener(SetItemsPlayer);
+            EventService.Instance.ShowItemsUI.AddListener(SetCarryWeight);
+            EventService.Instance.ShowItemsUI.AddListener(SetCoinsText);
+            EventService.Instance.ShowErrorText.AddListener(ErrorText);
+            EventService.Instance.TabPressed.AddListener(Tabfunctions);
+
+            isInitialized = true;
+        }
     }
 
     public void Initialize()
@@ -75,15 +84,69 @@ public class UIView : MonoBehaviour
         GameService.Instance.CreatePlayerItems(playerInventory.gameObject);
     }
 
+    public void DeactivatePanels()
+    {
+        if (confirmationPanel)
+        {
+            confirmationPanel.SetActive(false);
+        }
+        buyPanel.SetActive(false);
+    }
+
+    public void SetCarryWeight()
+    {
+        carryWeight.text = "Carry Weight: " + playerController.GetCarryWeight();
+    }
+
+    public void ErrorText()
+    {
+        errorMessage = "You are full my friend";
+        SetPopupText(errorMessage);
+
+        StartCoroutine(DisableErrorText());
+    }
+
+    public void SetPopupText(string message)
+    {
+        popupText.SetActive(true);
+        popupText.GetComponent<TextMeshProUGUI>().color = Color.red;
+        popupText.GetComponent<TextMeshProUGUI>().text = message;
+    }
+
+    public IEnumerator DisableErrorText()
+    {
+        yield return new WaitForSeconds(3f);
+        popupText.SetActive(false);
+    }
+
+    public void ConfirmationPanel()
+    {
+        confirmationPanel.SetActive(true);
+
+        if (tempItemModel.itemInventoryType == ItemInventoryType.PLAYERINVENTORY)
+        {
+            confirmationText.text = "Do you want to sell " + itemQuantity + " " + tempItemModel.nameOfItem + " ?";
+        }
+        else if (tempItemModel.itemInventoryType == ItemInventoryType.SHOPINVENTORY)
+        {
+            confirmationText.text = "Do you want to buy " + itemQuantity + " " + tempItemModel.nameOfItem + " ?";
+        }
+        else
+        {
+            return;
+        }
+    }
+
+
     public void BuyPanel(ItemModel item)
     {
+        //setting the item details and resetting the quantity
         ResetItemQuantity();
 
-        //setting the details
         tempItemModel = item;
 
         itemIcon.sprite = item.icon;
-        nameText.text = "Name: " + item.nameOfITem;
+        nameText.text = "Name: " + item.nameOfItem;
         descpText.text = "Description: " + item.description;
         itemInventType.text = "Belongs to: " + item.itemInventoryType.ToString();
 
@@ -97,6 +160,10 @@ public class UIView : MonoBehaviour
             priceText.text = "Price: " + item.sellingPrice;
             btnText.text = "Sell";
         }
+        else
+        {
+            Debug.Log("Kill me please I don't code nicely");
+        }
     }
 
     public void ResetItemQuantity()
@@ -105,93 +172,112 @@ public class UIView : MonoBehaviour
         quantityText.text = "" + itemQuantity;
     }
 
-    public void OnClickBuy()
+    public void Transaction()
     {
-        if (playerController.GetPlayerCoins() >= tempItemModel.costPrice * itemQuantity && tempItemModel.itemInventoryType == ItemInventoryType.SHOPINVENTORY)
+        if (tempItemModel.itemInventoryType == ItemInventoryType.SHOPINVENTORY)
         {
-            if (playerController.GetCarryWeight() >= playerController.GetMaxCarryWeight())
-            {
-                EventService.Instance.ShowErrorText.InvokeEvent();
-                return;
-            }
-
-            for (int i = 0; i < itemQuantity; i++)
-            {
-                shopController.RemoveItem(tempItemModel);
-                tempItemModel.itemInventoryType = ItemInventoryType.SHOPINVENTORY;
-                playerController.setCoins(tempItemModel);
-                playerController.AddItems(tempItemModel);
-            }
-
-            popupMessage = "Item bought";
-            SetPopupText(popupMessage);
-            Invoke("DisableErrorText", 3f);
-
-            GameService.Instance.GetSoundManager().PlaySfx(SoundType.BOUGHTSOUND);
-
-            ResetItemQuantity();
-            DeactivateBuyPanel();
-
-            return;
+            BuyItem();
         }
         else if (tempItemModel.itemInventoryType == ItemInventoryType.PLAYERINVENTORY)
         {
-            for (int i = 0; i < itemQuantity; i++)
-            {
-                playerController.RemoveItems(tempItemModel);
-                shopController.AddItem(tempItemModel);
-            }
+            SellItem();
+        }
+        else
+        {
+            errorMessage = "Not Enough Coins";
+            SetPopupText(errorMessage);
+            StartCoroutine(DisableErrorText());
+            DeactivatePanels();
+        }
+    }
 
-            popupMessage = "Item sold";
-            SetPopupText(popupMessage);
-            Invoke("DisableErrorText", 3f);
+    private void BuyItem()
+    {
+        int totalCost = tempItemModel.costPrice * itemQuantity;
 
-            GameService.Instance.GetSoundManager().PlaySfx(SoundType.SOLDSOUND);
-
-            ResetItemQuantity();
-            DeactivateBuyPanel();
-
+        if (playerController.GetPlayerCoins() < totalCost)
+        {
+            errorMessage = "Not Enough Coins";
+            SetPopupText(errorMessage);
+            StartCoroutine(DisableErrorText());
+            DeactivatePanels();
             return;
         }
 
-        errorMessage = "Not Enough Coins";
-        SetPopupText(errorMessage);
-        Invoke("DisableErrorText", 3f);
-
-        DeactivateBuyPanel();
-    }
-
-    public void DeactivateBuyPanel()
-    {
-        buyPanel.SetActive(false);
-    }
-
-    public void SetCarryWeight()
-    {
-        carryWeight.text = "Carry Weight: " + playerController.GetCarryWeight();
-    }
-
-    public void ErrorText()
-    {
-        if (playerController.GetCarryWeight() >= playerController.GetMaxCarryWeight())
+        if (playerController.GetCarryWeight() + (itemQuantity * tempItemModel.weight) > playerController.GetMaxCarryWeight())
         {
-            errorMessage = "You are full my friend";
-            SetPopupText(errorMessage);
+            EventService.Instance.ShowErrorText.InvokeEvent();
+            return;
         }
 
-        Invoke("DisableErrorText", 3f);
+        for (int i = 0; i < itemQuantity; i++)
+        {
+            shopController.RemoveItem(tempItemModel);
+            playerController.SetCoins(tempItemModel);
+            playerController.AddItems(tempItemModel);
+        }
+
+        popupMessage = "Item bought";
+        SetPopupText(popupMessage);
+
+        GameService.Instance.GetSoundManager().PlaySfx(SoundType.BOUGHTSOUND);
+
+        ResetItemQuantity();
+        DeactivatePanels();
+        StartCoroutine(DisableErrorText());
     }
 
-    public void SetPopupText(string message)
+    private void SellItem()
     {
-        popupText.SetActive(true);
-        popupText.GetComponent<TextMeshProUGUI>().color = Color.red;
-        popupText.GetComponent<TextMeshProUGUI>().text = message;
+        for (int i = 0; i < itemQuantity; i++)
+        {
+            playerController.RemoveItems(tempItemModel);
+            shopController.AddItem(tempItemModel);
+
+            Debug.Log($"Sell clicked with quantity: {itemQuantity}");
+        }
+
+        popupMessage = "Item sold";
+        SetPopupText(popupMessage);
+
+        GameService.Instance.GetSoundManager().PlaySfx(SoundType.SOLDSOUND);
+
+        ResetItemQuantity();
+        DeactivatePanels();
+        StartCoroutine(DisableErrorText());
     }
 
-    public void DisableErrorText()
+    public void Tabfunctions(ItemType itemType)
     {
-        popupText.SetActive(false);
+        var shopItems = shopController.GetList();
+
+        int totalSlots = shopInventory.transform.childCount;
+
+        for (int i = 0; i < totalSlots; i++)
+        {
+            Transform slot = shopInventory.transform.GetChild(i);
+            ItemView newItem = slot.GetComponent<ItemView>();
+
+            if (i < shopItems.Count)
+            {
+                ItemModel item = shopItems[i];
+
+                if (item.itemType == itemType)
+                {
+                    slot.gameObject.SetActive(true);
+                    newItem.SetImage(item);
+                    newItem.SetQuantity(item);
+                }
+                else
+                {
+                    slot.gameObject.SetActive(false);
+                }
+            }
+            else
+            {
+                slot.gameObject.SetActive(false);
+            }
+        }
     }
 
     public void SetItemsShop()
@@ -253,7 +339,7 @@ public class UIView : MonoBehaviour
         EventService.Instance.ShowItemsUI.RemoveListener(SetItemsPlayer);
         EventService.Instance.ShowItemsUI.RemoveListener(SetCarryWeight);
         EventService.Instance.ShowErrorText.RemoveListener(ErrorText);
+        EventService.Instance.TabPressed.RemoveListener(Tabfunctions);
     }
-
 }
 

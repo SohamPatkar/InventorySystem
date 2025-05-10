@@ -55,9 +55,20 @@ public class PlayerController
         return playerView.gameObject.transform.GetChild(1).gameObject;
     }
 
+    public List<ItemModel> GetItemsList()
+    {
+        return playerModel.items;
+    }
+
+    //earlier had designed it as skyrim you could carry a little overweight but then you get slow movement
+    public bool CarryWeightExceeded(ItemModel item)
+    {
+        return playerModel.carryWeight + item.weight > playerModel.maxCarryWeight;
+    }
+
     public void AddItems(ItemModel item)
     {
-        if (playerModel.carryWeight >= playerModel.maxCarryWeight)
+        if (CarryWeightExceeded(item))
         {
             EventService.Instance.ShowErrorText.InvokeEvent();
             return;
@@ -89,7 +100,7 @@ public class PlayerController
         }
     }
 
-    public void setCoins(ItemModel item)
+    public void SetCoins(ItemModel item)
     {
         if (item.itemInventoryType == ItemInventoryType.NONE || item.itemInventoryType == ItemInventoryType.PLAYERINVENTORY)
         {
@@ -114,21 +125,18 @@ public class PlayerController
             {
                 playerModel.carryWeight -= item.weight;
                 itemFound.quantity -= 1;
-                setCoins(item);
+                SetCoins(item);
                 EventService.Instance.ShowItemsUI.InvokeEvent();
                 return;
             }
 
             playerModel.carryWeight -= item.weight;
             playerModel.items.Remove(itemFound);
-            setCoins(item);
+            SetCoins(item);
             EventService.Instance.ShowItemsUI.InvokeEvent();
             return;
         }
     }
 
-    public List<ItemModel> GetItemsList()
-    {
-        return playerModel.items;
-    }
+
 }
