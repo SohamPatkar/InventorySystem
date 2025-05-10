@@ -19,7 +19,7 @@ MonoBehaviour:
   sellingPrice: 35
   costPrice: 50
   itemRarity: 1
-  itemType: 1
+  itemType: 2
   itemInventoryType: 0
   quantity: 1
   weight: 10

@@ -55,9 +55,19 @@ public class PlayerController
         return playerView.gameObject.transform.GetChild(1).gameObject;
     }
 
+    public List<ItemModel> GetItemsList()
+    {
+        return playerModel.items;
+    }
+
+    public bool CarryWeightExceeded(ItemModel item)
+    {
+        return playerModel.carryWeight + item.weight > playerModel.maxCarryWeight;
+    }
+
     public void AddItems(ItemModel item)
     {
-        if (playerModel.carryWeight >= playerModel.maxCarryWeight)
+        if (CarryWeightExceeded(item))
         {
             EventService.Instance.ShowErrorText.InvokeEvent();
             return;
@@ -127,8 +137,5 @@ public class PlayerController
         }
     }
 
-    public List<ItemModel> GetItemsList()
-    {
-        return playerModel.items;
-    }
+
 }

@@ -16,13 +16,12 @@ public class EventService
     public GameEventController ShowItemsUI { get; private set; }
     public GameEventController ShowErrorText { get; private set; }
     public GameEventController<ItemModel> OpenBuyPanel { get; private set; }
-    public GameEventController<ItemModel> OnBuy { get; private set; }
-
+    public GameEventController<ItemType> TabPressed { get; private set; }
     public EventService()
     {
         ShowItemsUI = new GameEventController();
         ShowErrorText = new GameEventController();
         OpenBuyPanel = new GameEventController<ItemModel>();
-        OnBuy = new GameEventController<ItemModel>();
+        TabPressed = new GameEventController<ItemType>();
     }
 }
