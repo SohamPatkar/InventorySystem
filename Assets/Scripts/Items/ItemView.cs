@@ -30,9 +30,4 @@ public class ItemView : MonoBehaviour
     {
         EventService.Instance.OpenBuyPanel.InvokeEvent(itemModel);
     }
-
-    public void SetItemController()
-    {
-
-    }
 }

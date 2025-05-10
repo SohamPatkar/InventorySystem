@@ -1,5 +1,7 @@
 public enum ItemType
 {
+    MATERIALS,
     CONSUMABLE,
-    WEAPON
+    WEAPON,
+    TREASURE
 }
