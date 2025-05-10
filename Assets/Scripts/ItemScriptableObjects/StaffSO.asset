@@ -10,16 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9728d702e76a66b4b936d38ed65582de, type: 3}
-  m_Name: AxeSO
+  m_Name: StaffSO
   m_EditorClassIdentifier: 
-  nameOfItem: Axe
-  id: '#4'
-  description: To kill
-  icon: {fileID: 21300000, guid: 8708d80070522a043a1ab6a2b2775382, type: 3}
-  sellingPrice: 15
-  costPrice: 25
-  itemRarity: 2
+  nameOfItem: Staff
+  id: '#81'
+  description: To perform Magical Attacks
+  icon: {fileID: 21300000, guid: 3aa1cb26afcdc244bb3a95c193575ecb, type: 3}
+  sellingPrice: 50
+  costPrice: 100
+  itemRarity: 3
   itemType: 2
   itemInventoryType: 0
   quantity: 1
-  weight: 25
+  weight: 5

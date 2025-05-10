@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class ItemModel
 {
-    public string nameOfITem;
+    public string nameOfItem;
     public string id;
     public string description;
     public Sprite icon;
@@ -24,7 +24,7 @@ public class ItemModel
 
     public void InitializeValues(ItemScriptableObject item, ItemInventoryType itemInventoryType)
     {
-        this.nameOfITem = item.nameOfItem;
+        this.nameOfItem = item.nameOfItem;
         id = item.id;
         description = item.description;
         icon = item.icon;

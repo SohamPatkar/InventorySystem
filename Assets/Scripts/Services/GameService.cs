@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class GameService : MonoBehaviour
@@ -7,6 +9,8 @@ public class GameService : MonoBehaviour
     public static GameService Instance { get { return instance; } }
     [SerializeField] private GameObject shopView;
     [SerializeField] private GameObject playerView;
+
+    //this is the panel that will hold the player and shopview
     [SerializeField] private GameObject inventoryPanel;
     [SerializeField] private ItemScriptableObject[] itemScriptableObjects;
     [SerializeField] private UIView uIView;
@@ -60,13 +64,56 @@ public class GameService : MonoBehaviour
 
     public void CreatePlayerItems(GameObject panel)
     {
-        int i = UnityEngine.Random.Range(0, itemScriptableObjects.Length);
-        ItemScriptableObject item = itemScriptableObjects[i];
+        ItemRarity typeOfItemToSpawn = GetItemTypeByRarity(GetPlayerInventoryValue());
 
-        ItemModel newItem = new ItemModel(item, ItemInventoryType.NONE);
+        List<ItemScriptableObject> filteredItems = itemScriptableObjects.Where(item => item.itemRarity == typeOfItemToSpawn).ToList();
 
-        playerController.setCoins(newItem);
-        playerController.AddItems(newItem);
+        if (filteredItems.Count > 0)
+        {
+            int randomIndex = UnityEngine.Random.Range(0, filteredItems.Count);
+            ItemScriptableObject itemToSpawn = filteredItems[randomIndex];
+
+            ItemModel newItem = new ItemModel(itemToSpawn, ItemInventoryType.NONE);
+            playerController.AddItems(newItem);
+        }
+    }
+
+    private int GetPlayerInventoryValue()
+    {
+        int valueOfPlayerInventory = 0;
+
+        List<ItemModel> playerInventoryList = playerController.GetItemsList();
+
+        foreach (ItemModel item in playerInventoryList)
+        {
+            valueOfPlayerInventory += item.sellingPrice * item.quantity;
+        }
+
+        return valueOfPlayerInventory;
+    }
+
+    private ItemRarity GetItemTypeByRarity(int playerCoins)
+    {
+        if (playerCoins < 25)
+        {
+            return ItemRarity.VERYCOMMON;
+        }
+        else if (playerCoins < 50)
+        {
+            return ItemRarity.COMMON;
+        }
+        else if (playerCoins < 100)
+        {
+            return ItemRarity.RARE;
+        }
+        else if (playerCoins < 125)
+        {
+            return ItemRarity.EPIC;
+        }
+        else
+        {
+            return ItemRarity.LEGENDARY;
+        }
     }
 
     private void CreatePlayer()
