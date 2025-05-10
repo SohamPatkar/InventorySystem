@@ -60,6 +60,7 @@ public class PlayerController
         return playerModel.items;
     }
 
+    //earlier had designed it as skyrim you could carry a little overweight but then you get slow movement
     public bool CarryWeightExceeded(ItemModel item)
     {
         return playerModel.carryWeight + item.weight > playerModel.maxCarryWeight;

@@ -1,5 +1,6 @@
 using System.Collections;
 using TMPro;
+using UnityEditor.VersionControl;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -15,8 +16,8 @@ public class UIView : MonoBehaviour
     private GameObject shopInventory;
 
     [Header("UI")]
-    [SerializeField] private GameObject buyPanel, popupText;
-    [SerializeField] private TextMeshProUGUI nameText, descpText, quantityText, priceText, carryWeight, btnText, itemInventType;
+    [SerializeField] private GameObject buyPanel, popupText, confirmationPanel;
+    [SerializeField] private TextMeshProUGUI nameText, descpText, quantityText, priceText, carryWeight, btnText, itemInventType, confirmationText;
     [SerializeField] private Image itemIcon;
     private ItemModel tempItemModel;
     private string errorMessage, popupMessage;
@@ -83,8 +84,12 @@ public class UIView : MonoBehaviour
         GameService.Instance.CreatePlayerItems(playerInventory.gameObject);
     }
 
-    private void DeactivateBuyPanel()
+    public void DeactivatePanels()
     {
+        if (confirmationPanel)
+        {
+            confirmationPanel.SetActive(false);
+        }
         buyPanel.SetActive(false);
     }
 
@@ -112,6 +117,24 @@ public class UIView : MonoBehaviour
     {
         yield return new WaitForSeconds(3f);
         popupText.SetActive(false);
+    }
+
+    public void ConfirmationPanel()
+    {
+        confirmationPanel.SetActive(true);
+
+        if (tempItemModel.itemInventoryType == ItemInventoryType.PLAYERINVENTORY)
+        {
+            confirmationText.text = "Do you want to sell " + itemQuantity + " " + tempItemModel.nameOfItem + " ?";
+        }
+        else if (tempItemModel.itemInventoryType == ItemInventoryType.SHOPINVENTORY)
+        {
+            confirmationText.text = "Do you want to buy " + itemQuantity + " " + tempItemModel.nameOfItem + " ?";
+        }
+        else
+        {
+            return;
+        }
     }
 
 
@@ -164,7 +187,7 @@ public class UIView : MonoBehaviour
             errorMessage = "Not Enough Coins";
             SetPopupText(errorMessage);
             StartCoroutine(DisableErrorText());
-            DeactivateBuyPanel();
+            DeactivatePanels();
         }
     }
 
@@ -177,11 +200,11 @@ public class UIView : MonoBehaviour
             errorMessage = "Not Enough Coins";
             SetPopupText(errorMessage);
             StartCoroutine(DisableErrorText());
-            DeactivateBuyPanel();
+            DeactivatePanels();
             return;
         }
 
-        if (playerController.CarryWeightExceeded(tempItemModel))
+        if (playerController.GetCarryWeight() + (itemQuantity * tempItemModel.weight) > playerController.GetMaxCarryWeight())
         {
             EventService.Instance.ShowErrorText.InvokeEvent();
             return;
@@ -196,10 +219,11 @@ public class UIView : MonoBehaviour
 
         popupMessage = "Item bought";
         SetPopupText(popupMessage);
+
         GameService.Instance.GetSoundManager().PlaySfx(SoundType.BOUGHTSOUND);
 
         ResetItemQuantity();
-        DeactivateBuyPanel();
+        DeactivatePanels();
         StartCoroutine(DisableErrorText());
     }
 
@@ -215,10 +239,11 @@ public class UIView : MonoBehaviour
 
         popupMessage = "Item sold";
         SetPopupText(popupMessage);
+
         GameService.Instance.GetSoundManager().PlaySfx(SoundType.SOLDSOUND);
 
         ResetItemQuantity();
-        DeactivateBuyPanel();
+        DeactivatePanels();
         StartCoroutine(DisableErrorText());
     }
 
