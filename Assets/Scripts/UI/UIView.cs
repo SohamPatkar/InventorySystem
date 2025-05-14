@@ -93,6 +93,11 @@ public class UIView : MonoBehaviour
         confirmationPanel.SetActive(false);
     }
 
+    public void CancelTransaction()
+    {
+        confirmationPanel.SetActive(false);
+    }
+
     public void SetCarryWeight(int weight)
     {
         carryWeight.text = "Carry Weight: " + weight;
