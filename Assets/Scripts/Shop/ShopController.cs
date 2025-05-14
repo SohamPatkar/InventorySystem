@@ -3,15 +3,17 @@ using UnityEngine;
 
 public class ShopController
 {
-    public ShopModel shopModel;
-    public ShopView shopView;
-    public ItemModel itemFound;
+    private ShopModel shopModel;
+    private ShopView shopView;
+    private ItemModel itemFound;
+    private List<Transform> slotList;
     public ShopController(ShopView shopView, Transform inventoryPanel)
     {
         shopModel = new ShopModel();
         this.shopView = GameObject.Instantiate(shopView.gameObject, inventoryPanel).GetComponent<ShopView>();
 
         this.shopView.SetShopController(this);
+        PopulateSlots();
     }
 
     public List<ItemModel> GetList()
@@ -35,7 +37,12 @@ public class ShopController
 
     public GameObject GetShopInventory()
     {
-        return shopView.shopInventoryPanel;
+        return shopView.ReturnShopInventoryPanel();
+    }
+
+    private void PopulateSlots()
+    {
+        slotList = shopView.GetSlots();
     }
 
     public void AddItem(ItemModel item)
@@ -43,7 +50,7 @@ public class ShopController
         if (HasItem(item))
         {
             itemFound.quantity += 1;
-            EventService.Instance.ShowItemsUI.InvokeEvent();
+            SetItemsShop();
             return;
         }
 
@@ -51,12 +58,12 @@ public class ShopController
         {
             ItemModel newItem = new ItemModel(item.itemSo, ItemInventoryType.SHOPINVENTORY);
             shopModel.items.Add(newItem);
-            EventService.Instance.ShowItemsUI.InvokeEvent();
+            SetItemsShop();
             return;
         }
 
         shopModel.items.Add(item);
-        EventService.Instance.ShowItemsUI.InvokeEvent();
+        SetItemsShop();
     }
 
     public void RemoveItem(ItemModel item)
@@ -66,19 +73,73 @@ public class ShopController
             if (itemFound.quantity > 1)
             {
                 itemFound.quantity -= 1;
-                EventService.Instance.ShowItemsUI.InvokeEvent();
+                SetItemsShop();
                 return;
             }
 
             shopModel.items.Remove(itemFound);
-            EventService.Instance.ShowItemsUI.InvokeEvent();
+            SetItemsShop();
             return;
         }
     }
 
-    public void TabCall(ItemType itemType)
+    public void Tabfunctions(ItemType itemType)
     {
-        EventService.Instance.TabPressed.InvokeEvent(itemType);
+        var shopItems = GetList();
+
+        int totalSlots = GetShopInventory().transform.childCount;
+
+        for (int i = 0; i < totalSlots; i++)
+        {
+            Transform slot = GetShopInventory().transform.GetChild(i);
+            ItemView newItem = slot.GetComponent<ItemView>();
+
+            if (i < shopItems.Count)
+            {
+                ItemModel item = shopItems[i];
+
+                if (item.itemType == itemType)
+                {
+                    slot.gameObject.SetActive(true);
+                    newItem.SetImage(item);
+                    newItem.SetQuantity(item);
+                }
+                else
+                {
+                    slot.gameObject.SetActive(false);
+                }
+            }
+            else
+            {
+                slot.gameObject.SetActive(false);
+            }
+        }
+    }
+
+    public void SetItemsShop()
+    {
+        var shopItems = GetList();
+
+        int totalSlots = GetShopInventory().transform.childCount;
+
+        for (int i = 0; i < totalSlots; i++)
+        {
+            Transform slot = slotList[i];
+            ItemView newItem = slot.GetComponent<ItemView>();
+
+            if (i < shopItems.Count)
+            {
+                ItemModel item = shopItems[i];
+
+                slot.gameObject.SetActive(true);
+                newItem.SetImage(item);
+                newItem.SetQuantity(item);
+            }
+            else
+            {
+                slot.gameObject.SetActive(false);
+            }
+        }
     }
 
 }

@@ -5,8 +5,10 @@ using UnityEngine;
 
 public class GameService : MonoBehaviour
 {
+
     private static GameService instance;
     public static GameService Instance { get { return instance; } }
+
     [SerializeField] private GameObject shopView;
     [SerializeField] private GameObject playerView;
 
@@ -39,7 +41,6 @@ public class GameService : MonoBehaviour
         CreatePlayer();
         CreateShop();
         CreateSoundManager();
-        uIView.Initialize();
         CreateShopItems();
     }
 
@@ -62,9 +63,10 @@ public class GameService : MonoBehaviour
         soundManager = new SoundManager(sfxSource, sounds);
     }
 
+    //populating items for player
     public void CreatePlayerItems(GameObject panel)
     {
-        ItemRarity typeOfItemToSpawn = GetItemTypeByRarity(GetPlayerInventoryValue());
+        ItemRarity typeOfItemToSpawn = GetItemTypeByRarity(playerController.GetPlayerInventoryValue());
 
         List<ItemScriptableObject> filteredItems = itemScriptableObjects.Where(item => item.itemRarity == typeOfItemToSpawn).ToList();
 
@@ -75,44 +77,6 @@ public class GameService : MonoBehaviour
 
             ItemModel newItem = new ItemModel(itemToSpawn, ItemInventoryType.NONE);
             playerController.AddItems(newItem);
-        }
-    }
-
-    private int GetPlayerInventoryValue()
-    {
-        int valueOfPlayerInventory = 0;
-
-        List<ItemModel> playerInventoryList = playerController.GetItemsList();
-
-        foreach (ItemModel item in playerInventoryList)
-        {
-            valueOfPlayerInventory += item.sellingPrice * item.quantity;
-        }
-
-        return valueOfPlayerInventory;
-    }
-
-    private ItemRarity GetItemTypeByRarity(int playerCoins)
-    {
-        if (playerCoins < 25)
-        {
-            return ItemRarity.VERYCOMMON;
-        }
-        else if (playerCoins < 50)
-        {
-            return ItemRarity.COMMON;
-        }
-        else if (playerCoins < 100)
-        {
-            return ItemRarity.RARE;
-        }
-        else if (playerCoins < 125)
-        {
-            return ItemRarity.EPIC;
-        }
-        else
-        {
-            return ItemRarity.LEGENDARY;
         }
     }
 
@@ -134,5 +98,29 @@ public class GameService : MonoBehaviour
     public ShopController GetShopController()
     {
         return shopController;
+    }
+
+    public ItemRarity GetItemTypeByRarity(int playerInventoryValue)
+    {
+        if (playerInventoryValue < 25)
+        {
+            return ItemRarity.VERYCOMMON;
+        }
+        else if (playerInventoryValue < 50)
+        {
+            return ItemRarity.COMMON;
+        }
+        else if (playerInventoryValue < 100)
+        {
+            return ItemRarity.RARE;
+        }
+        else if (playerInventoryValue < 125)
+        {
+            return ItemRarity.EPIC;
+        }
+        else
+        {
+            return ItemRarity.LEGENDARY;
+        }
     }
 }

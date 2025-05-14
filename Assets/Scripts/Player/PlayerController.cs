@@ -5,7 +5,6 @@ public class PlayerController
 {
     private PlayerModel playerModel;
     private PlayerView playerView;
-    public GameObject inventoryPanel;
     private ItemModel itemFound;
 
     public PlayerController(PlayerView playerView, GameObject inventoryPanel)
@@ -14,6 +13,20 @@ public class PlayerController
         this.playerView = GameObject.Instantiate(playerView, inventoryPanel.transform).GetComponent<PlayerView>();
 
         this.playerView.SetPlayerController(this);
+    }
+
+    public int GetPlayerInventoryValue()
+    {
+        int valueOfPlayerInventory = 0;
+
+        List<ItemModel> playerInventoryList = GetItemsList();
+
+        foreach (ItemModel item in playerInventoryList)
+        {
+            valueOfPlayerInventory += item.sellingPrice * item.quantity;
+        }
+
+        return valueOfPlayerInventory;
     }
 
     public int GetCarryWeight()
@@ -60,17 +73,11 @@ public class PlayerController
         return playerModel.items;
     }
 
-    //earlier had designed it as skyrim you could carry a little overweight but then you get slow movement
-    public bool CarryWeightExceeded(ItemModel item)
-    {
-        return playerModel.carryWeight + item.weight > playerModel.maxCarryWeight;
-    }
-
     public void AddItems(ItemModel item)
     {
-        if (CarryWeightExceeded(item))
+        if (playerModel.carryWeight + item.weight > playerModel.maxCarryWeight)
         {
-            EventService.Instance.ShowErrorText.InvokeEvent();
+            EventService.Instance.OnExceedWeight.InvokeEvent();
             return;
         }
 
@@ -78,26 +85,67 @@ public class PlayerController
         {
             itemFound.quantity += 1;
             playerModel.carryWeight += item.weight;
-
-            EventService.Instance.ShowItemsUI.InvokeEvent();
-            return;
-        }
-
-        if (item.itemInventoryType == ItemInventoryType.NONE)
-        {
-            playerModel.items.Add(item);
-            playerModel.carryWeight += item.weight;
-            item.itemInventoryType = ItemInventoryType.PLAYERINVENTORY;
-            EventService.Instance.ShowItemsUI.InvokeEvent();
         }
         else
         {
             ItemModel newItem = new ItemModel(item.itemSo, ItemInventoryType.PLAYERINVENTORY);
             playerModel.items.Add(newItem);
             playerModel.carryWeight += item.weight;
-            newItem.itemInventoryType = ItemInventoryType.PLAYERINVENTORY;
-            EventService.Instance.ShowItemsUI.InvokeEvent();
         }
+
+        SetItemsPlayer();
+        EventService.Instance.ShowItemsShop.InvokeEvent();
+        EventService.Instance.UpdateWeight.InvokeEvent(GetCarryWeight());
+    }
+
+    public void BuyItem(ItemModel item, int quantity)
+    {
+        if (playerModel.coins < item.costPrice * quantity)
+        {
+            EventService.Instance.NotEnoughCoinsText.InvokeEvent();
+            return;
+        }
+
+        if (playerModel.carryWeight + (item.weight * quantity) >= playerModel.maxCarryWeight)
+        {
+            EventService.Instance.OnExceedWeight.InvokeEvent();
+            return;
+        }
+
+        for (int i = 0; i < quantity; i++)
+        {
+            playerModel.coins -= item.costPrice;
+            if (playerModel.coins < 0)
+            {
+                playerModel.coins = 0;
+            }
+
+            GameService.Instance.GetShopController().RemoveItem(item);
+            AddItems(item);
+        }
+
+        GameService.Instance.GetSoundManager().PlaySfx(SoundType.BOUGHTSOUND);
+        EventService.Instance.ItemBoughtText.InvokeEvent();
+        EventService.Instance.UpdateCoins.InvokeEvent(GetPlayerCoins());
+    }
+
+    public void SellItem(ItemModel item, int quantity)
+    {
+        if (!HasItem(item))
+        {
+            return;
+        }
+
+        for (int i = 0; i < quantity; i++)
+        {
+            playerModel.coins += item.sellingPrice;
+            GameService.Instance.GetShopController().AddItem(item);
+            RemoveItems(item);
+        }
+
+        GameService.Instance.GetSoundManager().PlaySfx(SoundType.SOLDSOUND);
+        EventService.Instance.ItemSoldText.InvokeEvent();
+        EventService.Instance.UpdateCoins.InvokeEvent(GetPlayerCoins());
     }
 
     public void SetCoins(ItemModel item)
@@ -125,16 +173,46 @@ public class PlayerController
             {
                 playerModel.carryWeight -= item.weight;
                 itemFound.quantity -= 1;
-                SetCoins(item);
-                EventService.Instance.ShowItemsUI.InvokeEvent();
+
+                SetItemsPlayer();
+                EventService.Instance.ShowItemsShop.InvokeEvent();
+                EventService.Instance.UpdateWeight.InvokeEvent(GetCarryWeight());
                 return;
             }
 
             playerModel.carryWeight -= item.weight;
             playerModel.items.Remove(itemFound);
-            SetCoins(item);
-            EventService.Instance.ShowItemsUI.InvokeEvent();
+
+            SetItemsPlayer();
+            EventService.Instance.ShowItemsShop.InvokeEvent();
+            EventService.Instance.UpdateWeight.InvokeEvent(GetCarryWeight());
             return;
+        }
+    }
+
+    public void SetItemsPlayer()
+    {
+        var playerItems = GetItemsList();
+
+        int totalSlots = GetPlayerInventory().transform.childCount;
+
+        for (int i = 0; i < totalSlots; i++)
+        {
+            Transform slot = GetPlayerInventory().transform.GetChild(i);
+            ItemView newItem = slot.GetComponent<ItemView>();
+
+            if (i < playerItems.Count)
+            {
+                ItemModel item = playerItems[i];
+
+                slot.gameObject.SetActive(true);
+                newItem.SetImage(item);
+                newItem.SetQuantity(item);
+            }
+            else
+            {
+                slot.gameObject.SetActive(false);
+            }
         }
     }
 
