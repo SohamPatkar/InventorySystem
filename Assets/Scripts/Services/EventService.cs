@@ -13,15 +13,23 @@ public class EventService
         }
     }
 
-    public GameEventController ShowItemsUI { get; private set; }
-    public GameEventController ShowErrorText { get; private set; }
+    public GameEventController ShowItemsShop { get; private set; }
+    public GameEventController<int> UpdateWeight { get; private set; }
+    public GameEventController<int> UpdateCoins { get; private set; }
+    public GameEventController OnExceedWeight { get; private set; }
+    public GameEventController NotEnoughCoinsText { get; private set; }
+    public GameEventController ItemBoughtText { get; private set; }
+    public GameEventController ItemSoldText { get; private set; }
     public GameEventController<ItemModel> OpenBuyPanel { get; private set; }
-    public GameEventController<ItemType> TabPressed { get; private set; }
     public EventService()
     {
-        ShowItemsUI = new GameEventController();
-        ShowErrorText = new GameEventController();
+        NotEnoughCoinsText = new GameEventController();
+        UpdateWeight = new GameEventController<int>();
+        UpdateCoins = new GameEventController<int>();
+        ShowItemsShop = new GameEventController();
+        OnExceedWeight = new GameEventController();
         OpenBuyPanel = new GameEventController<ItemModel>();
-        TabPressed = new GameEventController<ItemType>();
+        ItemBoughtText = new GameEventController();
+        ItemSoldText = new GameEventController();
     }
 }
